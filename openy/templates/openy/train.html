@@ -1,0 +1,37 @@
+{% extends 'openy/base.html' %}
+{% load static %}
+
+{% block body %}
+<h1>Train Openings</h1>
+
+<form class="form_train" action="{% url 'openy:request_train'%}" method="POST">
+    <div>
+        <p>
+            Select the starting position with the board on the right.
+        </p>
+        <div class="input input--toggle">
+            <input id="turn" type="checkbox" name="turn" />
+            <span>Play as White</span>
+            <label for="turn">
+                <div class="input--toggle__ball"></div>
+            </label>
+            <span>Black</span>
+        </div>
+        {% csrf_token %}
+        <input id="inputFen" type="hidden" name="fen" value="">
+        <p>
+            <input class="button button--contained" type="submit" value="Start">
+        </p>
+    </div>
+    <div class="board"></div>
+</form>
+
+<script type="text/javascript" src="{% static 'openy/js/board.js' %}"></script>
+<script type="text/javascript">
+    document.getElementById("inputFen").value = STARTING_FEN;
+    initBoard(document.querySelector(".board"), STARTING_FEN, (fen) => {
+        document.getElementById("inputFen").value = fen;
+    });
+</script>
+
+{% endblock %}

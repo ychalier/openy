@@ -1,0 +1,5 @@
+include LICENSE
+include README.rst
+recursive-include openy/static *
+recursive-include openy/templates *
+recursive-include openy/management/commands *

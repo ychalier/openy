@@ -1,0 +1,41 @@
+.board {
+    box-shadow: 0 0 4px black;
+    display: flex;
+    flex-direction: column;
+}
+
+.rank {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+}
+
+.square {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.square--black {
+    background: rgb(118, 150, 86);
+}
+
+.square--white {
+    background: rgb(238, 238, 210);
+}
+
+.piece {
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    opacity: 1;
+    transition: opacity .5s ease;
+}
+
+.piece--moving {
+    cursor: grabbing;
+    opacity: .7;
+}

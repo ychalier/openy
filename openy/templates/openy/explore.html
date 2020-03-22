@@ -1,0 +1,40 @@
+{% extends 'openy/base.html' %}
+{% load static %}
+
+{% block body %}
+    <h1>Exploring the Database</h1>
+    <p class="line">{{node.line}}</p>
+    <div class="explore_table">
+        <div class="board_bar">
+            <div id="bar1" class="evaluation_bar"></div>
+            <div id="board1" class="board"></div>
+        </div>
+        <div class="history">
+            <table>
+                {% for ancestor in node.ancestors %}
+                <tr>
+                    <td><a href="{{ancestor.href}}">{{ancestor.label}}</a></td>
+                    <td style="color: {{ancestor.color}}">{{ancestor.evaluation}}</td>
+                    <td>{% if ancestor.comment %}{{ancestor.comment | capfirst}}{% else %}&ndash;{% endif %}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div id="repertoire1" class="repertoire" style="height: 400px" target="{{node.uid}}"></div>
+
+    <script type="text/javascript">
+        var csrfToken = "{{ csrf_token }}";
+        var findEntryUrl = "{% url 'openy:find_entry' %}";
+    </script>
+    <script type="text/javascript" src="{% static 'openy/js/board.js' %}"></script>
+    <script type="text/javascript" src="{% static 'openy/js/repertoire.js' %}"></script>
+    <script type="text/javascript" src="{% static 'openy/js/evaluation.js' %}"></script>
+    <script type="text/javascript" src="{% static 'openy/js/explore.js' %}"></script>
+    <script type="text/javascript">
+        initBoard(document.querySelector("#board1"), "{{node.fen}}", createBoardCallback("{{node.uid}}"));
+        initRepertoire(document.querySelector("#repertoire1"), "{% url 'openy:draw' %}?center={{node.uid}}&pred=2&succ=1");
+        initEvaluationBar(document.querySelector("#bar1"), "{{node.evaluation}}");
+    </script>
+{% endblock %}

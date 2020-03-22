@@ -1,0 +1,154 @@
+.form--full {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.form--full .input {
+    width: 100%;
+}
+
+.form--full .button {
+    flex-shrink: 0;
+}
+
+.input--filled {
+    display: flex;
+    flex-direction: column;
+    background: #202020;
+    border-radius: 4px 4px 0 0;
+    border-bottom: 1px solid rgb(238, 238, 210);
+}
+
+.input--outlined {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgb(238, 238, 210);
+    border-radius: 4px;
+    transition: .2s ease;
+}
+
+.input label {
+    color: rgb(238, 238, 210);
+    padding: 8px;
+    font-size: 14px;
+    transition: .2s ease;
+}
+
+.input--outlined label {
+    position: absolute;
+    top: -12px;
+    left: 13px;
+    background: #2F2F2F;
+    padding: 0 8px;
+}
+
+.input textarea, .input input {
+    font: inherit;
+    background: none;
+    padding: 8px;
+    color: white;
+    border: none;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.input:hover, .input:focus, .input:hover, .input:active {
+    border-color: rgb(118, 150, 86);
+}
+
+.input:hover label, .input:focus label, .input:hover label, .input:active label {
+    color: rgb(118, 150, 86);
+}
+
+.button {
+    padding: 8px 8px;
+    min-width: 100px;
+    border: none;
+    text-transform: uppercase;
+    font-size: inherit;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: .5s ease;
+    letter-spacing: 2px;
+    font-weight: 400;
+}
+
+.button--text {
+    color: rgb(118, 150, 86);
+    background: none;
+}
+
+.button--text:hover {
+    background: #202020;
+}
+
+.button--contained {
+    background: rgb(118, 150, 86);
+    color: white;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, .5);
+}
+
+.button--contained:hover {
+    box-shadow: 0 6px 6px rgba(0, 0, 0, .5);
+}
+
+.input--toggle {
+    display: flex;
+    flex-direction: row;
+    vertical-align: bottom;
+}
+
+.input--toggle span {
+    height: 21px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.input--toggle > * {
+    margin-right: 8px;
+}
+
+.input--toggle > *:last-child {
+    margin-right: 0;
+}
+
+.input--toggle input {
+    display: none;
+}
+
+.input--toggle label {
+    cursor: pointer;
+    position: relative;
+    border-radius: 21px;;
+    background: #202020;
+    width: 60px;
+    height: 29px;
+    padding: 0;
+    border: 1px groove rgb(238, 238, 210);
+    transition: .5s ease;
+}
+
+.input--toggle__ball {
+    position: absolute;
+    top: 4px;
+    border-radius: 50%;
+    width: 21px;
+    height: 21px;
+    transition: .5s ease;
+}
+
+.input--toggle input:not(:checked) ~ label > .input--toggle__ball {
+    left: 4px;
+    background: rgb(238, 238, 210);
+}
+
+.input--toggle input:checked ~ label > .input--toggle__ball {
+    left: 35px;
+    background: rgb(118, 150, 86);
+}
+
+.input--toggle input:checked ~ label {
+    border-color: rgb(118, 150, 86);
+}

@@ -1,0 +1,16 @@
+{% extends 'openy/base.html' %}
+{% load static %}
+
+{% block body %}
+<h1>Settings</h1>
+
+<div>
+    <form method="post" action="{% url 'openy:upload' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file">
+        <button type="submit">Upload</button>
+    </form>
+
+</div>
+
+{% endblock %}

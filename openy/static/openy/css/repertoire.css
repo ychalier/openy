@@ -1,0 +1,28 @@
+.repertoire {
+    cursor: grab;
+    width: 100%;
+    display: flex;
+    overflow: hidden;
+    background: #202020;
+    border-radius: 4px;
+}
+
+.node {
+    cursor: pointer;
+}
+
+.node:hover {
+    text-decoration: none;
+}
+
+.node text {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.repertoire line {
+    stroke: white;
+    stroke-width: 2;
+}
