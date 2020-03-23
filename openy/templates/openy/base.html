@@ -25,6 +25,7 @@
                 <span class="hide_on_small">&middot;</span>
                 <a href="{% url 'openy:explore_root' %}">Explore</a>
                 <a href="{% url 'openy:train' %}">Train</a>
+                <a href="{% url 'openy:board' %}">Board</a>
                 {% if request.user.is_staff %}
                 <span class="hide_on_small">&middot;</span>
                 <a href="{% url 'openy:settings' %}">Settings</a>

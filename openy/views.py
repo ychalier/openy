@@ -177,7 +177,7 @@ def request_train(request):
         turn = "w"
         if "turn" in request.POST:
             turn = "b"
-        fen = request.POST["fen"].replace("/", "-")
+        fen = request.POST["fen"].split(" ")[0].replace("/", "-")
         return redirect("openy:do_train", turn=turn, fen=fen)
     return redirect("openy:train")
 
@@ -213,3 +213,7 @@ def do_train(request, turn, fen):
         "exercise": exercise,
         "start": start,
     })
+
+
+def board(request):
+    return render(request, "openy/board.html", {})

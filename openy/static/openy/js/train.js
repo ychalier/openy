@@ -43,7 +43,7 @@ function initTrainingProgram(board, program) {
     let trainingProcess = initTrainingProcess(program);
     let callback = (fen) => {
         if (!trainingProcess.done()) {
-            if (trainingProcess.getNextTargetFen().startsWith(fen)) {
+            if (trainingProcess.getNextTargetFen().startsWith(fen.split(" ")[0])) {
                 console.log("Correct move!");
                 let nextFen = trainingProcess.step();
                 if (nextFen) {

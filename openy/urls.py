@@ -14,4 +14,5 @@ urlpatterns = [
     path("train", views.train, name="train"),
     path("request_train", views.request_train, name="request_train"),
     path("train/<turn>/<fen>", views.do_train, name="do_train"),
+    path("board", views.board, name="board"),
 ]

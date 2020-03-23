@@ -1,0 +1,81 @@
+{% load static %}
+
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>{% block title %}Openy{% endblock %}</title>
+    <meta name="viewport" content="width=device-width" />
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="{% static 'openy/css/board.css' %}" />
+    <style>
+        html {
+            height: 100%;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            margin: 0;
+            color: #EEE;
+            background-color: #202020;
+            background-image: url("../imagedoc-darknoise.png");
+            background-repeat: repeat;
+            font-family: "Segoe UI";
+        }
+        #board {
+            margin: 0 auto;
+            width: 600px;
+        }
+        #fen_form {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        #fen_form > * {
+            padding: 4px;
+            font-family: inherit;
+            font-size: 12px;
+            border: none;
+            color: white;
+        }
+        #input_fen {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+            background: #2F2F2F;
+            width: 544px;
+        }
+        #input_fen_button {
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+            cursor: pointer;
+            width: 48px;
+            background: #2F2F2F;
+        }
+        #input_fen_button:hover {
+            background: #383838;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="fen_form">
+        <input id="input_fen" type="text" name="name" placeholder="Enter a valid FEN string" />
+        <button id="input_fen_button" type="button" name="button">Set FEN</button>
+    </div>
+    <div id="board" class="board"></div>
+    <script type="text/javascript" src="{% static 'openy/js/board.js' %}"></script>
+    <script type="text/javascript">
+        let boardStatus = initBoard(document.querySelector(".board"), STARTING_FEN);
+        document.getElementById("input_fen_button").addEventListener("click", (event) => {
+            let fen = document.getElementById("input_fen").value.trim();
+            boardStatus.setFen(fen);
+            document.getElementById("input_fen").value = "";
+        });
+    </script>
+</body>
+
+</html>

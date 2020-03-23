@@ -13,7 +13,7 @@ function createBoardCallback(uid) {
                 }
             }
         }
-        request.send("csrfmiddlewaretoken=" + csrfToken + "&fen=" + fen + "&uid=" + uid);
+        request.send("csrfmiddlewaretoken=" + csrfToken + "&fen=" + fen.split(" ")[0] + "&uid=" + uid);
     }
     return callback;
 }
