@@ -135,8 +135,8 @@ def draw(request):
     )
     params = {
         "radius": float(request.GET.get("radius", 50)),
-        "vmargin": float(request.GET.get("vmargin", 10)),
-        "hmargin": float(request.GET.get("hmargin", 10)),
+        "vmargin": float(request.GET.get("vmargin", 20)),
+        "hmargin": float(request.GET.get("hmargin", 20)),
         "lines": int(request.GET.get("lines", 0)),
     }
     breadth = get_breadth(root, tree)
@@ -144,7 +144,7 @@ def draw(request):
     content = ""
     for uid, pos in position.items():
         if params["lines"] == 1:
-            content += '<g style="stroke: black; ">'
+            content += '<g style="stroke: white; ">'
         else:
             content += "<g>"
         for child in tree[uid]:
@@ -160,8 +160,12 @@ def draw(request):
             % (pos[0], pos[1], index[uid].label),
             '</a>'
         ])
-    return HttpResponse('<svg xmlns="http://www.w3.org/2000/svg" viewBox="%s">%s</svg>' % (
+    style = ""
+    if params["lines"] == 1:
+        style = 'style="background: #202020; font-family: Segoe UI"'
+    return HttpResponse('<svg xmlns="http://www.w3.org/2000/svg" viewBox="%s" %s >%s</svg>' % (
         get_viewbox(position, params),
+        style,
         content
     ), content_type="image/svg+xml")
 

@@ -87,6 +87,11 @@ function initPosition() {
     position.turn = "w";
     position.halfMoves = 0;
     position.fullMoves = 1;
+    position.result = {
+        "check": null,
+        "stalemate": false,
+        "checkmate": false,
+    }
 
     position.copy = function() {
         let newPosition = initPosition();
@@ -141,7 +146,7 @@ function initPosition() {
         let piece = this.pieces.get(startRank, startFile);
         if (piece) {
             if (piece[1] == "p") {
-                if (this.turn == "w") {
+                if (piece[0] == "w") {
                     if (startRank == endRank - 1 && startFile == endFile
                         && !this.pieces.has(endRank, endFile)) {
                         return true;
@@ -270,6 +275,31 @@ function initPosition() {
             }
         }
         return false;
+    }
+
+    position.canPlayMove = function(startRank, startFile, endRank, endFile) {
+        let piece = this.pieces.get(startRank, startFile);
+        if (!piece) {
+            return false;
+        }
+        if (piece[0] != this.turn) {
+            return false;
+        }
+        if (!this.isLegalDisplacement(startRank, startFile, endRank, endFile)) {
+            return false;
+        }
+        let ghostPosition = this.copy();
+        ghostPosition.pushMove(startRank, startFile, endRank, endFile);
+        for (key in ghostPosition.pieces) {
+            let target = this.turn + "k";
+            if (ghostPosition.pieces[key] == target) {
+                let pos = keyToPos(key);
+                if (ghostPosition.getThreats(this.turn, pos.rank, pos.file).length > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     position.parseFen = function(fen) {
@@ -433,6 +463,47 @@ function initPosition() {
         }
     }
 
+    position.updateResult = function() {
+        this.result.check = null;
+        this.result.stalemate = false;
+        this.result.checkmate = false;
+        let hasLegalMove = false;
+        for (let key in this.pieces) {
+            if (this.pieces[key][0] == this.turn && this.pieces[key][1] == "k") {
+                let pos = keyToPos(key);
+                if (this.getThreats(this.turn, pos.rank, pos.file).length > 0) {
+                    this.result.check = pos;
+                }
+                break;
+            }
+        }
+        for (let key in this.pieces) {
+            if (hasLegalMove) {
+                break;
+            }
+            if (this.pieces[key][0] == this.turn) {
+                if (!hasLegalMove) {
+                    let pos = keyToPos(key);
+                    for (let endRank = 1; endRank <= 8; endRank++) {
+                        for (let endFile = 1; endFile <= 8; endFile++) {
+                            if (this.canPlayMove(pos.rank, pos.file, endRank, endFile)) {
+                                hasLegalMove = true;
+                                break;
+                            }
+                        }
+                        if (hasLegalMove) {
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if (!hasLegalMove) {
+            this.result.checkmate = this.result.check != null;
+            this.result.stalemate = this.result.check == null;
+        }
+    }
+
     position.countMaterial = function() {
         let counts = {
             "b": 0,
@@ -518,12 +589,18 @@ function initBoardStatus() {
         "startX": null,
         "startY": null,
     }
+    boardStatus.highlight = {
+        "lastMoveStart": null,
+        "lastMoveEnd": null,
+    }
     boardStatus.position = initPosition();
 
     boardStatus.callback = null;
 
     boardStatus.setBoard = function() {
         this.board.innerHTML = "";
+        let boardWrapper = document.createElement("div");
+        boardWrapper.classList.add("board_wrapper");
         for (let rank = 8; rank >= 1; rank--) {
             let rankDiv = document.createElement("div");
             rankDiv.classList.add("rank");
@@ -538,8 +615,15 @@ function initBoardStatus() {
                 rankDiv.appendChild(square);
                 this.matrix.set(rank, file, square);
             }
-            this.board.appendChild(rankDiv);
+            boardWrapper.appendChild(rankDiv);
         }
+        this.board.appendChild(boardWrapper);
+        let resultDiv = document.createElement("div");
+        resultDiv.classList.add("board_result");
+        this.board.appendChild(resultDiv);
+        let materialDiv = document.createElement("div");
+        materialDiv.classList.add("board_material");
+        this.board.appendChild(materialDiv);
     }
 
     boardStatus.parseFen = function(fen) {
@@ -547,28 +631,7 @@ function initBoardStatus() {
     }
 
     boardStatus.canPlayMove = function(startRank, startFile, endRank, endFile) {
-        let piece = this.position.pieces.get(startRank, startFile);
-        if (!piece) {
-            return false;
-        }
-        if (piece[0] != this.position.turn) {
-            return false;
-        }
-        if (!this.position.isLegalDisplacement(startRank, startFile, endRank, endFile)) {
-            return false;
-        }
-        let ghostPosition = this.position.copy();
-        ghostPosition.pushMove(startRank, startFile, endRank, endFile);
-        for (key in ghostPosition.pieces) {
-            let target = this.position.turn + "k";
-            if (ghostPosition.pieces[key] == target) {
-                let pos = keyToPos(key);
-                if (ghostPosition.getThreats(this.position.turn, pos.rank, pos.file).length > 0) {
-                    return false;
-                }
-            }
-        }
-        return true;
+        return this.position.canPlayMove(startRank, startFile, endRank, endFile);
     }
 
     boardStatus.update = function() {
@@ -579,6 +642,8 @@ function initBoardStatus() {
         for (let rank = 8; rank >= 1; rank--) {
             for (let file = 1; file <= 8; file++) {
                 let square = this.matrix.get(rank, file);
+                square.classList.remove("square--check");
+                square.classList.remove("square--highlight");
                 if (this.position.pieces.has(rank, file)) {
                     let piece = document.createElement("img");
                     piece.classList.add("piece");
@@ -596,10 +661,38 @@ function initBoardStatus() {
                 }
             }
         }
+        if (this.position.result.check) {
+            this.matrix.get(this.position.result.check.rank, this.position.result.check.file).classList.add("square--check");
+        }
+        let resultDiv = this.board.querySelector(".board_result");
+        resultDiv.classList.remove("board_result--shown");
+        if (this.position.result.stalemate) {
+            resultDiv.textContent = "Stalemate";
+            resultDiv.classList.add("board_result--shown");
+        }
+        if (this.position.result.checkmate) {
+            resultDiv.textContent = "Checkmate";
+            resultDiv.classList.add("board_result--shown");
+        }
+        if (this.highlight.lastMoveStart) {
+            this.matrix.get(this.highlight.lastMoveStart.rank, this.highlight.lastMoveStart.file).classList.add("square--highlight");
+        }
+        if (this.highlight.lastMoveEnd) {
+            this.matrix.get(this.highlight.lastMoveEnd.rank, this.highlight.lastMoveEnd.file).classList.add("square--highlight");
+        }
+        let materialCount = this.position.countMaterial();
+        if (materialCount > 0) {
+            this.board.querySelector(".board_material").textContent = "+" + materialCount;
+        } else {
+            this.board.querySelector(".board_material").textContent = materialCount;
+        }
     }
 
     boardStatus.setFen = function(fen) {
         this.parseFen(fen);
+        this.position.updateResult();
+        this.highlight.lastMoveStart = null;
+        this.highlight.lastMoveEnd = null;
         this.update();
     }
 
@@ -612,6 +705,27 @@ function initBoardStatus() {
 
     boardStatus.getFen = function() {
         return this.position.toFen();
+    }
+
+    boardStatus.pushMove = function(rank, file) {
+        this.position.pushMove(this.drag.startRank, this.drag.startFile, rank, file);
+        this.position.updateResult();
+        let newFen = this.position.toFen();
+        this.fenHistoryIndex++;
+        this.fenHistory = this.fenHistory.slice(0, this.fenHistoryIndex);
+        this.fenHistory.push(newFen);
+        if (this.callback) {
+            this.callback(newFen);
+        }
+        this.highlight.lastMoveStart = {
+            "rank": this.drag.startRank,
+            "file": this.drag.startFile
+        }
+        this.highlight.lastMoveEnd = {
+            "rank": rank,
+            "file": file
+        }
+        this.update();
     }
 
     boardStatus.setEventListeners = function() {
@@ -653,16 +767,7 @@ function initBoardStatus() {
                 if (square) {
                     if (rank != this.drag.startRank || file != this.drag.startFile) {
                         if (this.canPlayMove(this.drag.startRank, this.drag.startFile, rank, file)) {
-                            this.position.pushMove(this.drag.startRank, this.drag.startFile, rank, file);
-                            let newFen = this.position.toFen();
-                            // console.log(newFen);
-                            this.fenHistoryIndex++;
-                            this.fenHistory = this.fenHistory.slice(0, this.fenHistoryIndex);
-                            this.fenHistory.push(newFen);
-                            if (this.callback) {
-                                this.callback(newFen);
-                            }
-                            this.update();
+                            this.pushMove(rank, file);
                         }
                     }
                 }

@@ -9,6 +9,7 @@
     <meta name="viewport" content="width=device-width" />
     <meta charset="utf-8" />
     <link rel="stylesheet" href="{% static 'openy/css/board.css' %}" />
+    <link rel="icon" href="{% static 'openy/icon.png' %}" />
     <style>
         html {
             height: 100%;
@@ -66,7 +67,7 @@
         <input id="input_fen" type="text" name="name" placeholder="Enter a valid FEN string" />
         <button id="input_fen_button" type="button" name="button">Set FEN</button>
     </div>
-    <div id="board" class="board"></div>
+    <div id="board" class="board board--show_material"></div>
     <script type="text/javascript" src="{% static 'openy/js/board.js' %}"></script>
     <script type="text/javascript">
         let boardStatus = initBoard(document.querySelector(".board"), STARTING_FEN);
