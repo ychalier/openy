@@ -199,7 +199,7 @@ function initPosition() {
                 }
             } else if (piece[1] == "n") {
                 if (!this.pieces.has(endRank, endFile)
-                || this.pieces.get(endRank, endFile)[0] != this.turn) {
+                || this.pieces.get(endRank, endFile)[0] != piece[0]) {
                     if (Math.abs(startRank - endRank) == 1
                     && Math.abs(startFile - endFile) == 2) {
                         return true;
