@@ -59,11 +59,9 @@ function initRepertoireStatus() {
             this.div.addEventListener("wheel", (event) => {
                 event.preventDefault();
                 if (event.deltaY < 0) {
-                    this.camera.scale += 1;
+                    this.camera.scale *= 1.2;
                 } else if (event.deltaY > 0) {
-                    if (this.camera.scale > 1) {
-                        this.camera.scale -= 1;
-                    }
+                    this.camera.scale /= 1.2;
                 }
                 this.svg.setAttribute("viewBox", this.camera.toViewBox());
             });
@@ -79,8 +77,10 @@ function initRepertoireStatus() {
                 if (this.camera.moving) {
                     let offsetX = event.clientX - this.camera.moveStartX;
                     let offsetY = event.clientY - this.camera.moveStartY;
-                    this.camera.centerX -= 0.005 * this.camera.width * offsetX / this.camera.scale;
-                    this.camera.centerY -= 0.005 * this.camera.height * offsetY / this.camera.scale;
+                    let movementX =  0.001 * this.camera.width / this.camera.scale;
+                    let movementY =  0.001 * this.camera.height / this.camera.scale;
+                    this.camera.centerX -= (movementX > movementY ? movementX : movementY) * offsetX ;
+                    this.camera.centerY -= (movementX > movementY ? movementX : movementY) * offsetY ;
                     this.camera.moveStartX = event.clientX;
                     this.camera.moveStartY = event.clientY;
                     this.svg.setAttribute("viewBox", this.camera.toViewBox());
@@ -111,4 +111,16 @@ function initRepertoire(div, url) {
     repertoireStatus = initRepertoireStatus();
     repertoireStatus.div = div;
     repertoireStatus.load(url);
+
+    div.querySelector("#repertoire_center_button").addEventListener("click", (event) => {
+        let targetUid = div.getAttribute("target");
+        let targetNode = repertoireStatus.svg.querySelector(".node[uid=\"" + targetUid + "\"] > circle");
+        if (targetNode) {
+            repertoireStatus.camera.centerX = parseFloat(targetNode.getAttribute("cx"));
+            repertoireStatus.camera.centerY = parseFloat(targetNode.getAttribute("cy"));
+            repertoireStatus.camera.scale = repertoireStatus.getScale(35);
+            repertoireStatus.svg.setAttribute("viewBox", repertoireStatus.camera.toViewBox());
+        }
+    });
+
 }

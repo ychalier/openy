@@ -1,10 +1,12 @@
 {% extends 'openy/base.html' %}
 {% load static %}
 
+{% block title %}Train • {{block.super}}{% endblock title %}
+
 {% block body %}
 <h1>Train Openings</h1>
 
-<form class="form_train" action="{% url 'openy:request_train'%}" method="POST">
+<form class="form_train" action="" method="POST">
     <div>
         <p>
             Select the starting position with the board on the right.
@@ -23,14 +25,34 @@
             <input class="button button--contained" type="submit" value="Start">
         </p>
     </div>
-    <div class="board"></div>
+    <div id="formBoard" class="board"></div>
 </form>
+
+<h2>Recent Exercises</h2>
+
+{% if remaining_exercises %}
+<div class="unfinished_exercise_list">
+    {% for exercise in remaining_exercises %}
+    <div class="unfinished_exercise">
+        <a href="{% url 'openy:exercise' eid=exercise.id %}">
+            <div class="board" disabled fen="{{exercise.first_position}}"></div>
+        </a>
+        <a class="unfinished_exercise__done" href="{% url 'openy:exercise_done' eid=exercise.id %}">&times;</a>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p>Nothing to show here!</p>
+{% endif %}
 
 <script type="text/javascript" src="{% static 'openy/js/board.js' %}"></script>
 <script type="text/javascript">
     document.getElementById("inputFen").value = STARTING_FEN;
-    initBoard(document.querySelector(".board"), STARTING_FEN, (fen) => {
+    initBoard(document.querySelector("#formBoard"), STARTING_FEN, (fen) => {
         document.getElementById("inputFen").value = fen;
+    });
+    document.querySelectorAll(".unfinished_exercise .board").forEach((item, i) => {
+        initBoard(item, item.getAttribute("fen"), null);
     });
 </script>
 

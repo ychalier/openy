@@ -5,7 +5,7 @@
 <html>
 
 <head>
-    <title>{% block title %}Openy{% endblock %}</title>
+    <title>Board • Openy</title>
     <meta name="viewport" content="width=device-width" />
     <meta charset="utf-8" />
     <link rel="stylesheet" href="{% static 'openy/css/board.css' %}" />
@@ -73,7 +73,7 @@
         let boardStatus = initBoard(document.querySelector(".board"), STARTING_FEN);
         document.getElementById("input_fen_button").addEventListener("click", (event) => {
             let fen = document.getElementById("input_fen").value.trim();
-            boardStatus.setFen(fen);
+            boardStatus.pushFen(fen);
             document.getElementById("input_fen").value = "";
         });
     </script>

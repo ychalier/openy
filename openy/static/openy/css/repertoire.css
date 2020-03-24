@@ -5,6 +5,7 @@
     overflow: hidden;
     background: #202020;
     border-radius: 4px;
+    position: relative;
 }
 
 .node {
@@ -25,4 +26,29 @@
 .repertoire line {
     stroke: white;
     stroke-width: 2;
+}
+
+.repertoire__fullscreen_link {
+    opacity: .2;
+    position: absolute;
+    bottom: 16px;
+    height: 18px;
+    transition: .5s ease;
+    cursor: pointer;
+}
+
+.repertoire__fullscreen_link:nth-of-type(1) {
+    right: 40px;
+}
+
+.repertoire__fullscreen_link:nth-of-type(2) {
+    right: 16px;
+}
+
+.repertoire__fullscreen_link:hover {
+    opacity: 1;
+}
+
+.repertoire__fullscreen_link img {
+    height: 18px;
 }

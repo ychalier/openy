@@ -9,11 +9,13 @@
     <meta name="viewport" content="width=device-width" />
     <meta charset="utf-8" />
     <link rel="icon" href="{% static 'openy/icon.png' %}" />
+    {% block stylesheets %}
     <link rel="stylesheet" href="{% static 'openy/css/layout.css' %}" />
     <link rel="stylesheet" href="{% static 'openy/css/forms.css' %}" />
     <link rel="stylesheet" href="{% static 'openy/css/board.css' %}" />
     <link rel="stylesheet" href="{% static 'openy/css/repertoire.css' %}" />
     <link rel="stylesheet" href="{% static 'openy/css/evaluation.css' %}" />
+    {% endblock stylesheets %}
 </head>
 
 <body>

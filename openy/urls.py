@@ -12,7 +12,7 @@ urlpatterns = [
     path("explore/<slug>", views.explore, name="explore"),
     path("find_entry", views.find_entry, name="find_entry"),
     path("train", views.train, name="train"),
-    path("request_train", views.request_train, name="request_train"),
-    path("train/<turn>/<fen>", views.do_train, name="do_train"),
     path("board", views.board, name="board"),
+    path("exercise/<eid>", views.exercise, name="exercise"),
+    path("exercise/<eid>/done", views.exercise_done, name="exercise_done"),
 ]

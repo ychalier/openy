@@ -27,9 +27,8 @@ function filterLine(line) {
         return null;
     }
     line.classList.add("disable_mutations");
-    let text = line.textContent.split(" ");
+    let text = line.textContent.trim().split(" ");
     line.innerHTML = "";
-    // line.classList.add("line");
     for (let i = 0; i < text.length; i++) {
         if (/\d+\./.test(text[i])) {
             let span = document.createElement("span");
@@ -39,7 +38,11 @@ function filterLine(line) {
         } else {
             let prefix = slugify(text.slice(0, i + 1).join(" "));
             let link = document.createElement("a");
-            link.href = "/chess/explore/" + prefix;
+            if (prefix.startsWith("1")) {
+                link.href = "/openy/explore/" + prefix;
+            } else {
+                link.href = "#"
+            }
             link.textContent = text[i];
             link.classList.add("move");
             line.appendChild(link);
@@ -61,4 +64,18 @@ for (let i = 0; i < lines.length; i++) {
         }
     });
     observer.observe(target, {childList: true});
+}
+
+function setTrainShortcut(trainShortcut, boardStatus) {
+    trainShortcut.addEventListener("click", (event) => {
+        let csrfToken = trainShortcut.getAttribute("csrf");
+        let fen = boardStatus.getFen();
+        let request = new XMLHttpRequest();
+        request.open("POST", trainShortcut.getAttribute("href"), true);
+        request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        request.onload = function() {
+            window.location.href = request.responseURL;
+        }
+        request.send("csrfmiddlewaretoken=" + csrfToken + "&fen=" + fen.split(" ")[0] + (fen.split(" ")[1] == "w" ? "" : "&turn=\"on\""));
+    });
 }

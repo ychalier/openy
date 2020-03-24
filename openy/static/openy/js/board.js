@@ -58,6 +58,17 @@ function keyToPos(key) {
     }
 }
 
+function uciToPos(uci) {
+    return {
+        "file": uci.charCodeAt(0) - 96,
+        "rank": parseInt(uci[1]),
+    }
+}
+
+function moveToUci(startRank, startFile, endRank, endFile) {
+    return fileChar(startFile) + startRank + fileChar(endFile) + endRank;
+}
+
 function isNumeric(str) {
     return /^\d+$/.test(str);
 }
@@ -304,34 +315,36 @@ function initPosition() {
 
     position.parseFen = function(fen) {
         this.pieces = initMatrix();
-        let splitFen = fen.split(" ");
-        let split = splitFen[0].split("/");
-        for (let i = 0; i < split.length; i++) {
-            let rank = 8 - i;
-            let file = 1;
-            for (let j = 0; j < split[i].length; j++) {
-                if (isNumeric(split[i][j])) {
-                    file += parseInt(split[i][j]);
-                } else if (isUppercase(split[i][j])) {
-                    this.pieces.set(rank, file, "w" + split[i][j].toLowerCase());
-                    file++;
-                } else {
-                    this.pieces.set(rank, file, "b" + split[i][j]);
-                    file++;
+        if (fen) {
+            let splitFen = fen.split(" ");
+            let split = splitFen[0].split("/");
+            for (let i = 0; i < split.length; i++) {
+                let rank = 8 - i;
+                let file = 1;
+                for (let j = 0; j < split[i].length; j++) {
+                    if (isNumeric(split[i][j])) {
+                        file += parseInt(split[i][j]);
+                    } else if (isUppercase(split[i][j])) {
+                        this.pieces.set(rank, file, "w" + split[i][j].toLowerCase());
+                        file++;
+                    } else {
+                        this.pieces.set(rank, file, "b" + split[i][j]);
+                        file++;
+                    }
                 }
             }
+            this.turn = splitFen[1];
+            for (castlingKind in this.castling) {
+                this.castling[castlingKind] = splitFen[2].includes(castlingKind);
+            }
+            if (splitFen[3] == "-") {
+                this.enPassant = null;
+            } else {
+                this.enPassant = keyToPos(splitFen[3]);
+            }
+            this.halfMoves = parseInt(splitFen[4]);
+            this.fullMoves = parseInt(splitFen[5]);
         }
-        this.turn = splitFen[1];
-        for (castlingKind in this.castling) {
-            this.castling[castlingKind] = splitFen[2].includes(castlingKind);
-        }
-        if (splitFen[3] == "-") {
-            this.enPassant = null;
-        } else {
-            this.enPassant = keyToPos(splitFen[3]);
-        }
-        this.halfMoves = parseInt(splitFen[4]);
-        this.fullMoves = parseInt(splitFen[5]);
     }
 
     position.getThreats = function(defender, rank, file) {
@@ -344,6 +357,75 @@ function initPosition() {
             }
         }
         return threats;
+    }
+
+    position.nameMove = function(startRank, startFile, endRank, endFile) {
+        let piece = this.pieces.get(startRank, startFile);
+        if (piece) {
+            let isPawnMove = piece[1] == "p";
+            let isKingMove = piece[1] == "k";
+            let endIsOccupied = this.pieces.has(endRank, endFile);
+            let isEnPassantMove = isPawnMove && startFile != endFile && !endIsOccupied;
+            let isCastling = isKingMove && Math.abs(endFile - startFile) == 2;
+            let isCapture = isEnPassantMove || endIsOccupied;
+            let isPromotion = (piece == "wp" && endRank == 8) || (piece == "bp" && endRank == 1);
+            let prefix = "";
+            if (isCastling) {
+                if (endFile == 3) {
+                    prefix = "O-O-O";
+                } else {
+                    prefix = "O-O";
+                }
+            } else {
+                let piecePrefix = "";
+                if (piece[1] != "p") {
+                    piecePrefix += piece[1].toUpperCase();
+                    let possiblyIdentical = {
+                        "count": 0,
+                        "ranks": new Set(),
+                        "files": new Set(),
+                    }
+                    for (let key in this.pieces) {
+                        if (this.pieces[key] == piece) {
+                            let start = keyToPos(key);
+                            if (this.isLegalDisplacement(start.rank, start.file, endRank, endFile)) {
+                                possiblyIdentical.count++;
+                                possiblyIdentical.ranks.add(start.rank);
+                                possiblyIdentical.files.add(start.file);
+                            }
+                        }
+                    }
+                    if (possiblyIdentical.count > 1) {
+                        if (possiblyIdentical.count == possiblyIdentical.files.size) {
+                            piecePrefix += fileChar(startFile);  // All files are different
+                        } else if (possiblyIdentical.count == possiblyIdentical.ranks.size) {
+                            piecePrefix += startRank;  // All ranks are different
+                        } else {
+                            piecePrefix += fileChar(startFile) + startRank;
+                        }
+                    }
+                } else if (isCapture) {
+                    piecePrefix = fileChar(startFile);
+                }
+                prefix += piecePrefix;
+                if (isCapture) {
+                    prefix += "x";
+                }
+                prefix += fileChar(endFile) + endRank;
+            }
+            if (isPromotion) {
+                prefix += "=Q";
+            }
+            let ghostPosition = this.copy();
+            ghostPosition.pushMove(startRank, startFile, endRank, endFile);
+            ghostPosition.updateResult();
+            if (ghostPosition.result.checkmate) {
+                prefix += "#";
+            } else if (ghostPosition.result.check) {
+                prefix += "+";
+            }
+            return prefix;
+        }
     }
 
     position.pushMove = function(startRank, startFile, endRank, endFile) {
@@ -433,7 +515,7 @@ function initPosition() {
                         this.pieces.remove(1, 1);
                     }
                 } else if (startRank == 8) {
-                    if (startFile == 7) { // Black O-O
+                    if (endFile == 7) { // Black O-O
                         this.pieces.set(8, 7, piece);
                         this.pieces.set(8, 6, this.pieces.get(8, 8));
                         this.pieces.remove(8, 5);
@@ -468,14 +550,20 @@ function initPosition() {
         this.result.stalemate = false;
         this.result.checkmate = false;
         let hasLegalMove = false;
+        let numberOfKings = 0;
         for (let key in this.pieces) {
-            if (this.pieces[key][0] == this.turn && this.pieces[key][1] == "k") {
-                let pos = keyToPos(key);
-                if (this.getThreats(this.turn, pos.rank, pos.file).length > 0) {
-                    this.result.check = pos;
+            if (this.pieces[key][1] == "k") {
+                numberOfKings++;
+                if (this.pieces[key][0] == this.turn) {
+                    let pos = keyToPos(key);
+                    if (this.getThreats(this.turn, pos.rank, pos.file).length > 0) {
+                        this.result.check = pos;
+                    }
                 }
-                break;
             }
+        }
+        if (numberOfKings != 2) {
+            return;
         }
         for (let key in this.pieces) {
             if (hasLegalMove) {
@@ -578,10 +666,9 @@ function initPosition() {
 function initBoardStatus() {
     let boardStatus = {};
     boardStatus.board = null;
-    boardStatus.fenHistory = [];
-    boardStatus.fenHistoryIndex = -1;
     boardStatus.matrix = initMatrix();
     boardStatus.disabled = false;
+
     boardStatus.drag = {
         "piece": null,
         "startRank": null,
@@ -589,10 +676,57 @@ function initBoardStatus() {
         "startX": null,
         "startY": null,
     }
+
     boardStatus.highlight = {
         "lastMoveStart": null,
         "lastMoveEnd": null,
     }
+
+    boardStatus.history = {
+        "stack": [],
+        "index": -1,
+    }
+
+    boardStatus.history.set = function(fen) {
+        this.index = 0;
+        this.stack = [];
+        this.stack.push({
+            "fen": fen,
+            "lastMoveSan": null,
+            "lastMoveUci": null,
+        })
+    }
+
+    boardStatus.history.add = function(moveSan, moveUci, fen) {
+        this.index++;
+        this.stack = this.stack.slice(0, this.index);
+        this.stack.push({
+            "fen": fen,
+            "lastMoveSan": moveSan,
+            "lastMoveUci": moveUci,
+        });
+    }
+
+    boardStatus.history.get = function() {
+        return this.stack[this.index];
+    }
+
+    boardStatus.history.line = function() {
+        let text = "";
+        for (let i = 1; i < this.stack.length; i++) {
+            let fenSplit = this.stack[i].fen.split(" ");
+            if (i == 1 && fenSplit[1] == "w") {
+                text += (fenSplit[5] - 1) + ". ... ";
+            }
+            if (fenSplit[1] == "b") {
+                text += fenSplit[5] + ". " + this.stack[i].lastMoveSan + " ";
+            } else {
+                text += this.stack[i].lastMoveSan + " ";
+            }
+        }
+        return text.trim();
+    }
+
     boardStatus.position = initPosition();
 
     boardStatus.callback = null;
@@ -698,34 +832,69 @@ function initBoardStatus() {
 
     boardStatus.pushFen = function(fen) {
         this.setFen(fen);
-        this.fenHistoryIndex++;
-        this.fenHistory = this.fenHistory.slice(0, this.fenHistoryIndex);
-        this.fenHistory.push(fen);
+        this.history.set(fen);
     }
 
     boardStatus.getFen = function() {
         return this.position.toFen();
     }
 
-    boardStatus.pushMove = function(rank, file) {
-        this.position.pushMove(this.drag.startRank, this.drag.startFile, rank, file);
+    boardStatus.pushUciMove = function(uciMove) {
+        let start = uciToPos(uciMove.slice(0, 2));
+        let end = uciToPos(uciMove.slice(2));
+        return this.pushMove(start.rank, start.file, end.rank, end.file);
+    }
+
+    boardStatus.pushMove = function(startRank, startFile, endRank, endFile) {
+        let move = this.position.nameMove(startRank, startFile, endRank, endFile);
+        this.position.pushMove(startRank, startFile, endRank, endFile);
         this.position.updateResult();
         let newFen = this.position.toFen();
-        this.fenHistoryIndex++;
-        this.fenHistory = this.fenHistory.slice(0, this.fenHistoryIndex);
-        this.fenHistory.push(newFen);
-        if (this.callback) {
-            this.callback(newFen);
-        }
+        this.history.add(move, moveToUci(startRank, startFile, endRank, endFile), newFen);
         this.highlight.lastMoveStart = {
-            "rank": this.drag.startRank,
-            "file": this.drag.startFile
+            "rank": startRank,
+            "file": startFile
         }
         this.highlight.lastMoveEnd = {
-            "rank": rank,
-            "file": file
+            "rank": endRank,
+            "file": endFile
         }
         this.update();
+        if (this.callback) {
+            this.callback(newFen, fileChar(startFile) + startRank + fileChar(endFile) + endRank);
+        }
+    }
+
+    boardStatus.undo = function() {
+        if (this.history.index > 0) {
+            this.history.index--;
+            this.parseFen(this.history.get().fen);
+            this.position.updateResult();
+            this.highlight.lastMoveStart = null;
+            this.highlight.lastMoveEnd = null;
+            if (this.history.get().lastMoveUci) {
+                let lastMoveUci = this.history.get().lastMoveUci;
+                this.highlight.lastMoveStart = uciToPos(lastMoveUci.slice(0, 2));
+                this.highlight.lastMoveEnd = uciToPos(lastMoveUci.slice(2));
+            }
+            this.update();
+        }
+    }
+
+    boardStatus.redo = function() {
+        if (this.history.index < this.history.stack.length - 1) {
+            this.history.index++;
+            this.parseFen(this.history.get().fen);
+            this.position.updateResult();
+            this.highlight.lastMoveStart = null;
+            this.highlight.lastMoveEnd = null;
+            if (this.history.get().lastMoveUci) {
+                let lastMoveUci = this.history.get().lastMoveUci;
+                this.highlight.lastMoveStart = uciToPos(lastMoveUci.slice(0, 2));
+                this.highlight.lastMoveEnd = uciToPos(lastMoveUci.slice(2));
+            }
+            this.update();
+        }
     }
 
     boardStatus.setEventListeners = function() {
@@ -767,7 +936,7 @@ function initBoardStatus() {
                 if (square) {
                     if (rank != this.drag.startRank || file != this.drag.startFile) {
                         if (this.canPlayMove(this.drag.startRank, this.drag.startFile, rank, file)) {
-                            this.pushMove(rank, file);
+                            this.pushMove(this.drag.startRank, this.drag.startFile, rank, file);
                         }
                     }
                 }
@@ -780,15 +949,9 @@ function initBoardStatus() {
         document.addEventListener("keydown", (event) => {
             if (!this.disabled) {
                 if (event.keyCode == 37) {
-                    if (this.fenHistoryIndex > 0) {
-                        this.fenHistoryIndex--;
-                        this.setFen(this.fenHistory[this.fenHistoryIndex]);
-                    }
+                    this.undo();
                 } else if (event.keyCode == 39) {
-                    if (this.fenHistoryIndex < this.fenHistory.length - 1) {
-                        this.fenHistoryIndex++;
-                        this.setFen(this.fenHistory[this.fenHistoryIndex]);
-                    }
+                    this.redo();
                 }
             }
         });

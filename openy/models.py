@@ -43,6 +43,15 @@ class Node(models.Model):
     def siblings(self):
         return Node.objects.filter(parent=self.parent).exclude(uid=self.uid)
 
+    def move_san(self):
+        return self.label.split(" ")[-1]
+
+    def move_uci(self):
+        if self.parent is not None:
+            move = self.parent.board().parse_san(self.move_san())
+            return move.uci()
+        return None
+
     def ancestors(self):
         result = [self]
         while True:
@@ -107,3 +116,13 @@ class Node(models.Model):
                 for key, value in child_tree.items():
                     result[key] = value
         return self.uid, result
+
+
+class Exercise(models.Model):
+
+    title = models.CharField(max_length=255)
+    description = models.TextField(default="")
+    starting_position = models.CharField(max_length=100)
+    moves = models.TextField(default="")
+    date_creation = models.DateTimeField(auto_now=False, auto_now_add=True)
+    first_position = models.CharField(max_length=100)

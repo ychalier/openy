@@ -1,9 +1,14 @@
 {% extends 'openy/base.html' %}
 {% load static %}
 
+{% block title %}Exploring {{node.line}} • {{ block.super }}{% endblock title %}
+
 {% block body %}
     <h1>Exploring the Database</h1>
-    <p class="line">{{node.line}}</p>
+    <p>
+        <span class="line">{{node.line}}</span>
+        <img id="train_shortcut" href="{% url 'openy:train' %}" csrf="{{csrf_token}}" title="Train" src="{% static 'openy/svg/external.svg' %}" alt="Train" />
+    </p>
     <div class="explore_table">
         <div class="board_bar">
             <div id="bar1" class="evaluation_bar"></div>
@@ -22,7 +27,10 @@
         </div>
     </div>
 
-    <div id="repertoire1" class="repertoire" style="height: 400px" target="{{node.uid}}"></div>
+    <div id="repertoire1" class="repertoire" style="height: 420px" target="{{node.uid}}">
+        <a id="repertoire_center_button" title="Center on current node" class="repertoire__fullscreen_link"><img src="{% static 'openy/svg/home.svg' %}" alt="Home"></a>
+        <a title="Draw full repertoire" class="repertoire__fullscreen_link" href="{% url 'openy:draw' %}?lines=1"><img src="{% static 'openy/svg/fullscreen.svg' %}" alt="Fullscreen"></a>
+    </div>
 
     <script type="text/javascript">
         var csrfToken = "{{ csrf_token }}";
@@ -33,8 +41,9 @@
     <script type="text/javascript" src="{% static 'openy/js/evaluation.js' %}"></script>
     <script type="text/javascript" src="{% static 'openy/js/explore.js' %}"></script>
     <script type="text/javascript">
-        initBoard(document.querySelector("#board1"), "{{node.fen}}", createBoardCallback("{{node.uid}}"));
+        let boardStatus = initBoard(document.querySelector("#board1"), "{{node.fen}}", createBoardCallback("{{node.uid}}"));
         initRepertoire(document.querySelector("#repertoire1"), "{% url 'openy:draw' %}?center={{node.uid}}&pred=2&succ=1");
         initEvaluationBar(document.querySelector("#bar1"), "{{node.evaluation}}");
+        setTrainShortcut(document.getElementById("train_shortcut"), boardStatus);
     </script>
 {% endblock %}
