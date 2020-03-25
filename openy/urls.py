@@ -15,4 +15,5 @@ urlpatterns = [
     path("board", views.board, name="board"),
     path("exercise/<eid>", views.exercise, name="exercise"),
     path("exercise/<eid>/done", views.exercise_done, name="exercise_done"),
+    path("graph", views.graph, name="graph"),
 ]

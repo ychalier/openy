@@ -10,38 +10,12 @@
     <meta charset="utf-8" />
     <link rel="icon" href="{% static 'openy/icon.png' %}" />
     {% block stylesheets %}
-    <link rel="stylesheet" href="{% static 'openy/css/layout.css' %}" />
-    <link rel="stylesheet" href="{% static 'openy/css/forms.css' %}" />
-    <link rel="stylesheet" href="{% static 'openy/css/board.css' %}" />
-    <link rel="stylesheet" href="{% static 'openy/css/repertoire.css' %}" />
-    <link rel="stylesheet" href="{% static 'openy/css/evaluation.css' %}" />
+    <link rel="stylesheet" href="{% static 'openy/css/base.css' %}" />
     {% endblock stylesheets %}
 </head>
 
 <body>
-    <div class="body_wrapper">
-        <div class="fullheight_padding"></div>
-        <header class="header header--inline">
-            <nav class="header__nav navbar">
-                <a href="{% url 'openy:home' %}" class="header__title">Openy</a>
-                {% if request.user.is_authenticated %}
-                <span class="hide_on_small">&middot;</span>
-                <a href="{% url 'openy:explore_root' %}">Explore</a>
-                <a href="{% url 'openy:train' %}">Train</a>
-                <a href="{% url 'openy:board' %}">Board</a>
-                {% if request.user.is_staff %}
-                <span class="hide_on_small">&middot;</span>
-                <a href="{% url 'openy:settings' %}">Settings</a>
-                {% endif %}
-                {% endif %}
-            </nav>
-        </header>
-        <section>
-            {% block body %}
-            {% endblock %}
-        </section>
-        <div class="fullheight_padding"></div>
-    </div>
+    {% block body %}{% endblock body %}
 </body>
 
 </html>

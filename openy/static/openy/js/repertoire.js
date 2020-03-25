@@ -27,7 +27,7 @@ function initRepertoireStatus() {
     repertoireStatus.camera = null;
     repertoireStatus.currentViewBox = {};
 
-    repertoireStatus.getScale = function (targetRadius) {
+    repertoireStatus.getScale = function(targetRadius) {
         let radius = parseFloat(this.svg.querySelector(".node > circle").getAttribute("r"));
         let scaleWidth = this.camera.width * targetRadius / (this.div.offsetWidth * radius);
         let scaleHeight = this.camera.height * targetRadius / (this.div.offsetHeight * radius);
@@ -72,22 +72,47 @@ function initRepertoireStatus() {
                 this.camera.moveStartY = event.clientY;
                 this.div.style.cursor = "grabbing";
             });
+            this.div.addEventListener("touchstart", (event) => {
+                this.camera.moving = true;
+                this.camera.moveStartX = event.changedTouches[0].clientX;
+                this.camera.moveStartY = event.changedTouches[0].clientY;
+                this.div.style.cursor = "grabbing";
+            });
 
             window.addEventListener("mousemove", (event) => {
                 if (this.camera.moving) {
                     let offsetX = event.clientX - this.camera.moveStartX;
                     let offsetY = event.clientY - this.camera.moveStartY;
-                    let movementX =  0.001 * this.camera.width / this.camera.scale;
-                    let movementY =  0.001 * this.camera.height / this.camera.scale;
-                    this.camera.centerX -= (movementX > movementY ? movementX : movementY) * offsetX ;
-                    this.camera.centerY -= (movementX > movementY ? movementX : movementY) * offsetY ;
+                    let movementX = 0.001 * this.camera.width / this.camera.scale;
+                    let movementY = 0.001 * this.camera.height / this.camera.scale;
+                    this.camera.centerX -= (movementX > movementY ? movementX : movementY) * offsetX;
+                    this.camera.centerY -= (movementX > movementY ? movementX : movementY) * offsetY;
                     this.camera.moveStartX = event.clientX;
                     this.camera.moveStartY = event.clientY;
                     this.svg.setAttribute("viewBox", this.camera.toViewBox());
                 }
             });
+            window.addEventListener("touchmove", (event) => {
+                if (this.camera.moving) {
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    let offsetX = event.changedTouches[0].clientX - this.camera.moveStartX;
+                    let offsetY = event.changedTouches[0].clientY - this.camera.moveStartY;
+                    let movementX = 0.001 * this.camera.width / this.camera.scale;
+                    let movementY = 0.001 * this.camera.height / this.camera.scale;
+                    this.camera.centerX -= (movementX > movementY ? movementX : movementY) * offsetX;
+                    this.camera.centerY -= (movementX > movementY ? movementX : movementY) * offsetY;
+                    this.camera.moveStartX = event.changedTouches[0].clientX;
+                    this.camera.moveStartY = event.changedTouches[0].clientY;
+                    this.svg.setAttribute("viewBox", this.camera.toViewBox());
+                }
+            });
 
             window.addEventListener("mouseup", (event) => {
+                this.camera.moving = false;
+                this.div.style.cursor = "grab";
+            });
+            window.addEventListener("touchend", (event) => {
                 this.camera.moving = false;
                 this.div.style.cursor = "grab";
             });
@@ -98,6 +123,9 @@ function initRepertoireStatus() {
                 this.camera.centerX = parseFloat(targetNode.getAttribute("cx"));
                 this.camera.centerY = parseFloat(targetNode.getAttribute("cy"));
                 this.camera.scale = this.getScale(35);
+                this.svg.setAttribute("viewBox", this.camera.toViewBox());
+            } else {
+                this.camera.scale = 0.8;
                 this.svg.setAttribute("viewBox", this.camera.toViewBox());
             }
 
@@ -112,15 +140,18 @@ function initRepertoire(div, url) {
     repertoireStatus.div = div;
     repertoireStatus.load(url);
 
-    div.querySelector("#repertoire_center_button").addEventListener("click", (event) => {
-        let targetUid = div.getAttribute("target");
-        let targetNode = repertoireStatus.svg.querySelector(".node[uid=\"" + targetUid + "\"] > circle");
-        if (targetNode) {
-            repertoireStatus.camera.centerX = parseFloat(targetNode.getAttribute("cx"));
-            repertoireStatus.camera.centerY = parseFloat(targetNode.getAttribute("cy"));
-            repertoireStatus.camera.scale = repertoireStatus.getScale(35);
-            repertoireStatus.svg.setAttribute("viewBox", repertoireStatus.camera.toViewBox());
-        }
-    });
+    let centerButton = div.querySelector("#repertoire_center_button");
+    if (centerButton) {
+        centerButton.addEventListener("click", (event) => {
+            let targetUid = div.getAttribute("target");
+            let targetNode = repertoireStatus.svg.querySelector(".node[uid=\"" + targetUid + "\"] > circle");
+            if (targetNode) {
+                repertoireStatus.camera.centerX = parseFloat(targetNode.getAttribute("cx"));
+                repertoireStatus.camera.centerY = parseFloat(targetNode.getAttribute("cy"));
+                repertoireStatus.camera.scale = repertoireStatus.getScale(35);
+                repertoireStatus.svg.setAttribute("viewBox", repertoireStatus.camera.toViewBox());
+            }
+        });
+    }
 
 }

@@ -1,0 +1,33 @@
+{% extends 'openy/base.html' %}
+{% load static %}
+
+
+{% block stylesheets %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'openy/css/layout.css' %}" />
+{% endblock stylesheets %}
+
+{% block body %}
+<div class="body_wrapper">
+    <div class="fullheight_padding"></div>
+    <header class="header header--inline">
+        <nav class="header__nav navbar">
+            <a href="{% url 'openy:home' %}" class="header__title">Openy</a>
+            {% if request.user.is_authenticated %}
+                <span class="hide_on_small">&middot;</span>
+                <a href="{% url 'openy:explore_root' %}">Explore</a>
+                <a href="{% url 'openy:train' %}">Train</a>
+                <a href="{% url 'openy:board' %}">Board</a>
+                {% if request.user.is_staff %}
+                    <span class="hide_on_small">&middot;</span>
+                    <a href="{% url 'openy:settings' %}">Settings</a>
+                {% endif %}
+            {% endif %}
+        </nav>
+    </header>
+    <section>
+        {% block section %}{% endblock section %}
+    </section>
+    <div class="fullheight_padding"></div>
+</div>
+{% endblock body %}

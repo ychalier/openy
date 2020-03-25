@@ -161,8 +161,8 @@ def draw(request):
             '</a>'
         ])
     style = ""
-    if params["lines"] == 1:
-        style = 'style="background: #202020; font-family: Segoe UI"'
+    # if params["lines"] == 1:
+    #     style = 'style="background: #202020; font-family: Segoe UI"'
     return HttpResponse('<svg xmlns="http://www.w3.org/2000/svg" viewBox="%s" %s >%s</svg>' % (
         get_viewbox(position, params),
         style,
@@ -229,6 +229,7 @@ def board(request):
     return render(request, "openy/board.html", {})
 
 
+@login_required
 def exercise(request, eid):
     if not models.Exercise.objects.filter(id=eid).exists():
         return redirect("openy:train")
@@ -238,8 +239,14 @@ def exercise(request, eid):
     })
 
 
+@login_required
 def exercise_done(_, eid):
     if not models.Exercise.objects.filter(id=eid).exists():
         return redirect("openy:train")
     models.Exercise.objects.get(id=eid).delete()
     return redirect("openy:train")
+
+
+@login_required
+def graph(request):
+    return render(request, "openy/graph.html", {})

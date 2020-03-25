@@ -668,6 +668,17 @@ function initBoardStatus() {
     boardStatus.board = null;
     boardStatus.matrix = initMatrix();
     boardStatus.disabled = false;
+    boardStatus.flipped = false;
+
+    boardStatus.reverse = function() {
+        if (this.flipped) {
+            this.flipped = false;
+            this.board.classList.remove("board--reverse");
+        } else {
+            this.flipped = true;
+            this.board.classList.add("board--reverse");
+        }
+    }
 
     boardStatus.drag = {
         "piece": null,
@@ -675,6 +686,8 @@ function initBoardStatus() {
         "startFile": null,
         "startX": null,
         "startY": null,
+        "lastX": null,
+        "lastY": null,
     }
 
     boardStatus.highlight = {
@@ -915,6 +928,21 @@ function initBoardStatus() {
                         }
                     }
                 });
+                square.addEventListener("touchstart", (event) => {
+                    if (!this.disabled) {
+                        let piece = square.querySelector(".piece");
+                        if (piece) {
+                            piece.classList.add("piece--moving");
+                            this.drag.piece = piece;
+                            this.drag.startRank = rank;
+                            this.drag.startFile = file;
+                            this.drag.startX = event.changedTouches[0].clientX;
+                            this.drag.startY = event.changedTouches[0].clientY;
+                            this.drag.lastX = event.changedTouches[0].clientX;
+                            this.drag.lastY = event.changedTouches[0].clientY;
+                        }
+                    }
+                }, {passive: false});
             }
         }
 
@@ -925,6 +953,17 @@ function initBoardStatus() {
                     (event.clientY - this.drag.startY) + "px)";
             }
         });
+        this.board.addEventListener("touchmove", (event) => {
+            if (this.drag.piece) {
+                event.preventDefault();
+                event.stopImmediatePropagation();
+                this.drag.lastX = event.changedTouches[0].clientX;
+                this.drag.lastY = event.changedTouches[0].clientY;
+                this.drag.piece.style.transform = "translate(" +
+                    (event.changedTouches[0].clientX - this.drag.startX) + "px, " +
+                    (event.changedTouches[0].clientY - this.drag.startY) + "px)";
+            }
+        }, {passive: false});
 
         document.addEventListener("mouseup", (event) => {
             if (this.drag.piece) {
@@ -932,6 +971,10 @@ function initBoardStatus() {
                 let squareHeight = this.matrix.get(1, 1).clientHeight;
                 let rank = 8 - parseInt((event.clientY - this.board.getBoundingClientRect().top) / squareHeight);
                 let file = parseInt((event.clientX - this.board.getBoundingClientRect().left) / squareWidth) + 1;
+                if (this.flipped) {
+                    rank = 9 - rank;
+                    file = 9 - file;
+                }
                 let square = this.matrix.get(rank, file);
                 if (square) {
                     if (rank != this.drag.startRank || file != this.drag.startFile) {
@@ -945,6 +988,29 @@ function initBoardStatus() {
                 this.drag.piece = null;
             }
         });
+        this.board.addEventListener("touchend", (event) => {
+            if (this.drag.piece) {
+                let squareWidth = this.matrix.get(1, 1).clientWidth;
+                let squareHeight = this.matrix.get(1, 1).clientHeight;
+                let rank = 8 - parseInt((this.drag.lastY - this.board.getBoundingClientRect().top) / squareHeight);
+                let file = parseInt((this.drag.lastX - this.board.getBoundingClientRect().left) / squareWidth) + 1;
+                if (this.flipped) {
+                    rank = 9 - rank;
+                    file = 9 - file;
+                }
+                let square = this.matrix.get(rank, file);
+                if (square) {
+                    if (rank != this.drag.startRank || file != this.drag.startFile) {
+                        if (this.canPlayMove(this.drag.startRank, this.drag.startFile, rank, file)) {
+                            this.pushMove(this.drag.startRank, this.drag.startFile, rank, file);
+                        }
+                    }
+                }
+                this.drag.piece.classList.remove("piece--moving");
+                this.drag.piece.style.transform = "none";
+                this.drag.piece = null;
+            }
+        }, { passive: false });
 
         document.addEventListener("keydown", (event) => {
             if (!this.disabled) {

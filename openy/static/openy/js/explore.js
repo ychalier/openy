@@ -29,12 +29,19 @@ function filterLine(line) {
     line.classList.add("disable_mutations");
     let text = line.textContent.trim().split(" ");
     line.innerHTML = "";
+    let fullmoveSpan = null;
     for (let i = 0; i < text.length; i++) {
         if (/\d+\./.test(text[i])) {
+            if (fullmoveSpan != null) {
+                line.appendChild(fullmoveSpan);
+                fullmoveSpan = null;
+            }
+            fullmoveSpan = document.createElement("span");
+            fullmoveSpan.classList.add("fullmove");
             let span = document.createElement("span");
             span.textContent = text[i];
             span.classList.add("move_number");
-            line.appendChild(span);
+            fullmoveSpan.appendChild(span);
         } else {
             let prefix = slugify(text.slice(0, i + 1).join(" "));
             let link = document.createElement("a");
@@ -45,8 +52,13 @@ function filterLine(line) {
             }
             link.textContent = text[i];
             link.classList.add("move");
-            line.appendChild(link);
+            if (fullmoveSpan != null) {
+                fullmoveSpan.appendChild(link);
+            }
         }
+    }
+    if (fullmoveSpan != null) {
+        line.appendChild(fullmoveSpan);
     }
     setTimeout(function () {
         line.classList.remove("disable_mutations");

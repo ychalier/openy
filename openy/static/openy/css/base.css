@@ -1,0 +1,72 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+}
+
+body {
+    color: #EEE;
+    background-color: #202020;
+    background-image: url("../imagedoc-darknoise.png");
+    background-repeat: repeat;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI";
+}
+
+h1 {
+    font-size: 32px;
+}
+
+h1, h2 {
+    font-weight: 600;
+}
+
+h2 {
+    font-size: 24px;
+}
+
+h3 {
+    font-size: 20px;
+}
+
+h3, h4 {
+    font-weight: 600;
+}
+
+h4 {
+    font-size: 16px;
+}
+
+h5 {
+    font-size: 14px;
+}
+
+h5, h6 {
+    font-weight: 600;
+}
+
+h6 {
+    font-size: 12px;
+}
+
+header a {
+    color: white;
+}
+
+a {
+    color: #61BFC1;
+    text-decoration: none;
+    vertical-align: baseline;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.icon {
+    width: 20px;
+    height: 20px;
+}

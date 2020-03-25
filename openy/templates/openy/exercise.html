@@ -1,14 +1,16 @@
-{% extends 'openy/base.html' %}
+{% extends 'openy/layout.html' %}
 {% load static %}
 
 {% block title %}Exercise • {{block.super}}{% endblock title %}
 
 {% block stylesheets %}
 {{block.super}}
+<link rel="stylesheet" href="{% static 'openy/css/board.css' %}" />
 <link rel="stylesheet" href="{% static 'openy/css/exercise.css' %}" />
+<link rel="stylesheet" href="{% static 'openy/css/line.css' %}" />
 {% endblock stylesheets %}
 
-{% block body %}
+{% block section %}
 
 <h1>{{exercise.title}}</h1>
 
@@ -17,7 +19,20 @@
 {% endif %}
 
 <div class="exercise">
-    <div class="exercise__board board"></div>
+    <div class="exercise__board">
+        <div class="board"></div>
+        <div class="exercise__start_button">Start</div>
+        <div id="exercise_popup__success" class="exercise_popup">
+            <img class="exercise_popup__icon" src="{% static 'openy/svg/checkmark.svg' %}" alt="">
+            <div class="exercise_popup__title">Success</div>
+            <div class="exercise_popup__button">OK</div>
+        </div>
+        <div id="exercise_popup__failure" class="exercise_popup">
+            <img class="exercise_popup__icon" src="{% static 'openy/svg/close.svg' %}" alt="">
+            <div class="exercise_popup__title">Failure</div>
+            <div class="exercise_popup__button">OK</div>
+        </div>
+    </div>
     <div class="exercise__sidebar">
         <div class="exercise__sidebar__clock">
             <img class="icon" src="{% static 'openy/svg/clock.svg' %}" alt=""><span class="exercise__sidebar__timer">00:00</span>
@@ -29,26 +44,15 @@
             <div class="exercise__sidebar__buttons__copy"><img title="Clip FEN" class="icon" src="{% static 'openy/svg/clipboard.svg' %}" alt="Copy"></div>
         </div>
     </div>
-    <div class="exercise__start_button">Start</div>
-    <div id="exercise_popup__success" class="exercise_popup">
-        <img class="exercise_popup__icon" src="{% static 'openy/svg/checkmark.svg' %}" alt="">
-        <div class="exercise_popup__title">Success</div>
-        <div class="exercise_popup__button">OK</div>
-    </div>
-    <div id="exercise_popup__failure" class="exercise_popup">
-        <img class="exercise_popup__icon" src="{% static 'openy/svg/close.svg' %}" alt="">
-        <div class="exercise_popup__title">Failure</div>
-        <div class="exercise_popup__button">OK</div>
-    </div>
 </div>
 
 <script type="text/javascript" src="{% static 'openy/js/board.js' %}"></script>
 <script type="text/javascript" src="{% static 'openy/js/exercise.js' %}"></script>
-<script type="text/javascript" src="{% static 'openy/js/explore.js' %}"></script>
 <script type="text/javascript">
     let boardStatus = initBoard(document.querySelector(".board"), null, null);
     let exercise = initExercise(document.querySelector(".exercise"), boardStatus, "{{exercise.starting_position}}", "{{exercise.moves}}");
 </script>
+<script type="text/javascript" src="{% static 'openy/js/explore.js' %}"></script>
 
 
 {% endblock %}

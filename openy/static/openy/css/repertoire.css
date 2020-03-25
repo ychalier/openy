@@ -57,3 +57,44 @@
 .repertoire__fullscreen_link img {
     height: 18px;
 }
+
+.history {
+    overflow-y: auto;
+    height: 100%;
+}
+
+.history table {
+    border-collapse: separate;
+}
+
+.history tr {}
+
+.history tr:nth-child(even) {
+    background: #202020;
+}
+
+.history tr:nth-child(odd) {
+    background: #282828;
+}
+
+.history td {
+    padding: 4px;
+}
+
+.history td:first-child {
+    white-space: nowrap;
+    text-align: left;
+}
+
+.history td:nth-child(2) {
+    text-align: center;
+    font-size: 12px;
+}
+
+.history td:nth-child(3) {
+    width: 100%;
+}
+
+.history a {
+    color: inherit;
+}

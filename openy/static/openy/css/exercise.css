@@ -3,17 +3,17 @@ body {
 }
 
 .exercise {
-    position: relative;
     display: flex;
     flex-direction: row;
 }
 
 .exercise__board {
+    position: relative;
     width: 100%;
 }
 
 .exercise__sidebar {
-    width: 130px;
+    width: 150px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -55,7 +55,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) translateX(-70px);
+    transform: translate(-50%, -50%);
     padding: 8px;
     text-transform: uppercase;
     font-size: 24px;
@@ -80,15 +80,15 @@ body {
 }
 
 @-webkit-keyframes zoom-fade-in {
-    0% { opacity: 0; transform: translate(-50%, -50%) translateX(-70px) scale(.1);}
-    85% {opacity: 1; transform: translate(-50%, -50%) translateX(-70px) scale(1.05);}
-    100% {-webkit-transform: translate(-50%, -50%) translateX(-70px) scale3d(1); opacity: 1;}
+    0%   {opacity: 0; transform: translate(-50%, -50%) scale(.1);}
+    85%  {opacity: 1; transform: translate(-50%, -50%) scale(1.05);}
+    100% {opacity: 1; transform: translate(-50%, -50%) scale3d(1);}
 }
 
 @-webkit-keyframes zoom-out-fade-in {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
-    80% { opacity: 0; transform: translate(-50%, -50%) scale(10); }
-    100% {opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    0%   {opacity: 0; transform: translate(-50%, -50%) scale(1);}
+    80%  {opacity: 0; transform: translate(-50%, -50%) scale(5);}
+    100% {opacity: 1; transform: translate(-50%, -50%) scale(1);}
 }
 
 .exercise_popup {
@@ -96,7 +96,7 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%) translateX(-70px);
+    transform: translate(-50%, -50%);
     background: rgba(32, 32, 32, .95);
     color: white;
     z-index: 1;
@@ -150,4 +150,28 @@ body {
 
 #exercise_popup__failure .exercise_popup__button, #exercise_popup__failure .exercise_popup__icon {
     background: crimson
+}
+
+@media (max-width: 832px) {
+
+    .exercise {
+        flex-direction: column;
+        height: auto;
+        width: 100%;
+    }
+
+    .exercise__sidebar {
+        margin-top: 16px;
+        margin-left: 0;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .exercise__sidebar > * {
+        margin-bottom: 8px;
+    }
+
+    .exercise__sidebar > *:last-child {
+        margin-bottom: 0;
+    }
 }

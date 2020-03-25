@@ -1,0 +1,36 @@
+.line_wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.line {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.move_number {
+    margin-right: 8px;
+    opacity: .5;
+}
+
+.move {
+    color: inherit;
+    margin-right: 8px;
+}
+
+.move:hover {
+    text-decoration: none;
+}
+
+.line_external {
+    opacity: .2;
+    height: 21px;
+    cursor: pointer;
+    transition: .5s ease;
+}
+
+.line_external:hover {
+    opacity: 1;
+}

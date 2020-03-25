@@ -1,13 +1,22 @@
-{% extends 'openy/base.html' %}
+{% extends 'openy/layout.html' %}
 {% load static %}
+
+{% block stylesheets %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'openy/css/board.css' %}" />
+<link rel="stylesheet" href="{% static 'openy/css/evaluation.css' %}" />
+<link rel="stylesheet" href="{% static 'openy/css/repertoire.css' %}" />
+<link rel="stylesheet" href="{% static 'openy/css/explore.css' %}" />
+<link rel="stylesheet" href="{% static 'openy/css/line.css' %}" />
+{% endblock stylesheets %}
 
 {% block title %}Exploring {{node.line}} • {{ block.super }}{% endblock title %}
 
-{% block body %}
+{% block section %}
     <h1>Exploring the Database</h1>
-    <p>
+    <p class="line_wrapper">
         <span class="line">{{node.line}}</span>
-        <img id="train_shortcut" href="{% url 'openy:train' %}" csrf="{{csrf_token}}" title="Train" src="{% static 'openy/svg/external.svg' %}" alt="Train" />
+        <img class="line_external" id="train_shortcut" href="{% url 'openy:train' %}" csrf="{{csrf_token}}" title="Train" src="{% static 'openy/svg/external.svg' %}" alt="Train" />
     </p>
     <div class="explore_table">
         <div class="board_bar">
@@ -29,7 +38,7 @@
 
     <div id="repertoire1" class="repertoire" style="height: 420px" target="{{node.uid}}">
         <a id="repertoire_center_button" title="Center on current node" class="repertoire__fullscreen_link"><img src="{% static 'openy/svg/home.svg' %}" alt="Home"></a>
-        <a title="Draw full repertoire" class="repertoire__fullscreen_link" href="{% url 'openy:draw' %}?lines=1"><img src="{% static 'openy/svg/fullscreen.svg' %}" alt="Fullscreen"></a>
+        <a title="Draw full repertoire" class="repertoire__fullscreen_link" href="{% url 'openy:graph' %}"><img src="{% static 'openy/svg/fullscreen.svg' %}" alt="Fullscreen"></a>
     </div>
 
     <script type="text/javascript">

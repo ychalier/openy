@@ -1,9 +1,16 @@
-{% extends 'openy/base.html' %}
+{% extends 'openy/layout.html' %}
 {% load static %}
 
 {% block title %}Train • {{block.super}}{% endblock title %}
 
-{% block body %}
+{% block stylesheets %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'openy/css/board.css' %}" />
+<link rel="stylesheet" href="{% static 'openy/css/forms.css' %}" />
+<link rel="stylesheet" href="{% static 'openy/css/train.css' %}" />
+{% endblock stylesheets %}
+
+{% block section %}
 <h1>Train Openings</h1>
 
 <form class="form_train" action="" method="POST">

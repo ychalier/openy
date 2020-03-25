@@ -1,0 +1,37 @@
+{% extends 'openy/base.html' %}
+{% load static %}
+
+{% block stylesheets %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'openy/css/repertoire.css' %}">
+<style media="screen">
+    html {
+        position: fixed;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+    }
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    .repertoire {
+        width: 100%;
+        height: 100%;
+    }
+    .repertoire svg {
+        background: none;
+    }
+</style>
+{% endblock stylesheets %}
+
+{% block title %}Board • {{block.super}}{% endblock %}
+
+{% block body %}
+<div id="repertoire1" class="repertoire">
+</div>
+<script type="text/javascript" src="{% static 'openy/js/repertoire.js' %}"></script>
+<script type="text/javascript">
+    let rep = initRepertoire(document.querySelector("#repertoire1"), "{% url 'openy:draw' %}?lines=1");
+</script>
+{% endblock %}
