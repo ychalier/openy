@@ -50,7 +50,7 @@
 <script type="text/javascript" src="{% static 'openy/js/exercise.js' %}"></script>
 <script type="text/javascript">
     let boardStatus = initBoard(document.querySelector(".board"), null, null);
-    let exercise = initExercise(document.querySelector(".exercise"), boardStatus, "{{exercise.starting_position}}", "{{exercise.moves}}");
+    let exercise = initExercise(document.querySelector(".exercise"), boardStatus, "{{exercise.starting_position}}", "{{exercise.moves}}", {% if exercise.first_move %}true{% else %}false{% endif %});
 </script>
 <script type="text/javascript" src="{% static 'openy/js/explore.js' %}"></script>
 

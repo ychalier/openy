@@ -47,7 +47,7 @@ function parseMove(string) {
     return move;
 }
 
-function initExercise(wrapper, boardStatus, startingPosition, moves) {
+function initExercise(wrapper, boardStatus, startingPosition, moves, firstMove) {
     let exercise = {};
     exercise.wrapper = wrapper;
     exercise.boardStatus = boardStatus;
@@ -63,6 +63,7 @@ function initExercise(wrapper, boardStatus, startingPosition, moves) {
     exercise.startingPosition = startingPosition;
     exercise.moves = [];
     exercise.progress = 0;
+    exercise.firstMove = firstMove;
 
     let movesSplit = moves.split(",");
     for (let i = 0; i < movesSplit.length; i++) {
@@ -158,6 +159,10 @@ function initExercise(wrapper, boardStatus, startingPosition, moves) {
             event.target.parentNode.classList.remove("show");
         });
     });
+
+    if (!exercise.firstMove) {
+        exercise.boardStatus.reverse();
+    }
 
     return exercise;
 }

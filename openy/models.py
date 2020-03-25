@@ -125,4 +125,5 @@ class Exercise(models.Model):
     starting_position = models.CharField(max_length=100)
     moves = models.TextField(default="")
     date_creation = models.DateTimeField(auto_now=False, auto_now_add=True)
-    first_position = models.CharField(max_length=100)
+    cover_position = models.CharField(max_length=100)
+    first_move = models.BooleanField(default=True)

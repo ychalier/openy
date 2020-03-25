@@ -42,7 +42,7 @@
     {% for exercise in remaining_exercises %}
     <div class="unfinished_exercise">
         <a href="{% url 'openy:exercise' eid=exercise.id %}">
-            <div class="board" disabled fen="{{exercise.first_position}}"></div>
+            <div class="board" disabled fen="{{exercise.cover_position}}"></div>
         </a>
         <a class="unfinished_exercise__done" href="{% url 'openy:exercise_done' eid=exercise.id %}">&times;</a>
     </div>
