@@ -131,4 +131,4 @@ db.sqlite3
 project/
 manage.py
 log.tsv
-.txt
+*.txt
