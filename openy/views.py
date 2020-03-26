@@ -138,6 +138,7 @@ def draw(request):
         "vmargin": float(request.GET.get("vmargin", 20)),
         "hmargin": float(request.GET.get("hmargin", 20)),
         "lines": int(request.GET.get("lines", 0)),
+        "bg": int(request.GET.get("bg", 0)),
     }
     breadth = get_breadth(root, tree)
     position = get_position(root, tree, breadth, params)
@@ -161,8 +162,8 @@ def draw(request):
             '</a>'
         ])
     style = ""
-    # if params["lines"] == 1:
-    #     style = 'style="background: #202020; font-family: Segoe UI"'
+    if params["bg"] == 1:
+        style += 'style="background: #202020; font-family: Segoe UI"'
     return HttpResponse('<svg xmlns="http://www.w3.org/2000/svg" viewBox="%s" %s >%s</svg>' % (
         get_viewbox(position, params),
         style,
