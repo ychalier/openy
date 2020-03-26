@@ -340,7 +340,7 @@ function initPosition() {
             if (splitFen[3] == "-") {
                 this.enPassant = null;
             } else {
-                this.enPassant = keyToPos(splitFen[3]);
+                this.enPassant = uciToPos(splitFen[3]);
             }
             this.halfMoves = parseInt(splitFen[4]);
             this.fullMoves = parseInt(splitFen[5]);
