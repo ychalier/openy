@@ -17,24 +17,21 @@ Installation
 
 Installation follows basic Django applications installation process.
 
-1. Install the module from its custom package repository:
-
-    ::
-
-        pip install --extra-index-url="https://packages.chalier.fr" django-openy
+1. Install the module from its custom package repository.
+   ::
+        
+      pip install --extra-index-url="https://packages.chalier.fr" django-openy
 
 2. Add ``'openy'`` to your Django project ``INSTALLED_APPS``
 3. Migrate the database:
-
-    ::
-
-        python manage.py migrate
+   ::
+        
+      python manage.py migrate
 
 4. Collect the new static files:
-
-    ::
-
-        python manage.py collecstatic
+   ::
+        
+      python manage.py collecstatic
 
 5. Integrate ``openy.urls`` in your project URLs
 
