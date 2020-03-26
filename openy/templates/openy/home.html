@@ -4,6 +4,54 @@
 {% block section %}
 <h1>Openy</h1>
 
+<p>
+    <b>Openy</b> is a <a href="//www.djangoproject.com/">Django</a> application to learn chess openings.
+    It takes textual notes as input, and provides tools to explore and memorize them.
+    View it on <a href="//github.com/ychalier/openy/">GitHub</a>.
+</p>
+
+<h2>Database initialization</h2>
+
+<p>First, write notes in a text file, with the following format:</p>
+
+<pre>
+    1. e4 : Takes the center
+       1. ... e5 : Again, black takes the center
+           2. Nf3
+               2. ... Nc6
+                   3. d4 : Scotch opening
+       1. ... c5 : Sicilian defence
+</pre>
+
+<p>
+Note that indentation is ignored by the parser, as well as blank lines or any
+line not following that format (i.e. one move per line, in
+<a href="https://en.wikipedia.org/wiki/Algebraic_notation_(chess)">standard
+algebraic notation</a>, possibly followed by a textual comment ;
+respect punctuation and spaces in the example for lines to be correctly parsed).
+</p>
+<p>
+Second, use the parsing script <code>scripts/parser.py</code>. It requires a
+UCI chess engine executable, such as <a href="https://stockfishchess.org/">Stockfish</a> or
+<a href="https://komodochess.com/">Komodo</a>. It will
+output a JSON file (called by default <code>repertoire.json</code>).
+</p>
+<p>
+Finally, upload this JSON file to the website through the form in
+<a href="{% url 'openy:settings' %}">Openy's settings</a>.
+This will populate the database with your notes.
+</p>
+
+<h2>Built With</h2>
+
+<ul>
+    <li>Some SVG icons are imported from the <a href="https://github.com/danklammer/bytesize-icons">Bytesize Icons</a> library.</li>
+    <li>Theme and piece graphics are from the <a href="https://www.chess.com/">Chess.com</a> website.</li>
+    <li>Python's chess mechanics are implemented by the <a href="https://python-chess.readthedocs.io/en/latest/">python-chess</a> module.</li>
+</ul>
+
+<hr>
+
 <blockquote>
     La partie d'Échecs dépend de trois facteurs : la <b>matière</b> (représentée
     par les 32 pièces), l'<b>espace</b> (représenté par les 64 cases de l'échiquier),
@@ -16,7 +64,12 @@
     sont, malgré la simplicité apparente de la position, très faciles à
     commettre et très difficiles à réparer.
 </blockquote >
- <p><cite>Bréviaire des échecs</cite> by Xavier Tartakover, 1933.</p>
-<cite></cite>
+
+<p style="text-align:center">
+    <cite>Bréviaire des échecs</cite> by Xavier Tartakover, 1933.
+    <br>
+    <br>
+    <img src="{% static 'openy/icon.png' %}" alt="" />
+</p>
 
 {% endblock %}
