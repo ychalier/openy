@@ -14,6 +14,8 @@ urlpatterns = [
     path("train", views.train, name="train"),
     path("board", views.board, name="board"),
     path("exercise/<eid>", views.exercise, name="exercise"),
-    path("exercise/<eid>/done", views.exercise_done, name="exercise_done"),
+    path("exercise/<eid>/delete", views.exercise_delete, name="exercise_delete"),
+    path("exercise/<eid>/failure", views.exercise_failure, name="exercise_failure"),
+    path("exercise/<eid>/success", views.exercise_success, name="exercise_success"),
     path("graph", views.graph, name="graph"),
 ]

@@ -64,6 +64,9 @@ function initExercise(wrapper, boardStatus, startingPosition, moves, firstMove) 
     exercise.moves = [];
     exercise.progress = 0;
     exercise.firstMove = firstMove;
+    exercise.clickedOnPopup = false;
+    exercise.didReceiveUrl = false;
+    exercise.receivedUrl = null;
 
     let movesSplit = moves.split(",");
     for (let i = 0; i < movesSplit.length; i++) {
@@ -84,12 +87,27 @@ function initExercise(wrapper, boardStatus, startingPosition, moves, firstMove) 
         if (!this.moves[0].ask) {
             this.boardStatus.pushUciMove(this.moves[0].move);
         }
+        this.clickedOnPopup = false;
+        this.didReceivedUrl = false;
+        this.receivedUrl = null;
     }
 
     exercise.stop = function() {
         this.status.finished = true;
         this.timer.stop();
         this.boardStatus.disabled = true;
+        let request = new XMLHttpRequest();
+        let self = this;
+        let url = window.location.href + (this.status.finishStatus == EXERCISE_SUCCESS ? "/success" : "/failure?progress=" + this.progress);
+        request.open("GET", url, true);
+        request.onload = function() {
+            self.receivedUrl = request.responseURL;
+            self.didReceiveUrl = true;
+            if (self.clickedOnPopup) {
+                window.location.href = self.receivedUrl;
+            }
+        }
+        request.send(null);
     }
 
     exercise.fail = function() {
@@ -157,6 +175,10 @@ function initExercise(wrapper, boardStatus, startingPosition, moves, firstMove) 
     wrapper.querySelectorAll(".exercise_popup").forEach((item, i) => {
         item.querySelector(".exercise_popup__button").addEventListener("click", (event) => {
             event.target.parentNode.classList.remove("show");
+            exercise.clickedOnPopup = true;
+            if (exercise.didReceiveUrl) {
+                window.location.href = exercise.receivedUrl;
+            }
         });
     });
 

@@ -13,6 +13,59 @@
 {% block section %}
 <h1>Train Openings</h1>
 
+<form class="training_progress" action="" method="POST">
+    <div class="training_progress__title">
+        Training Progress
+    </div>
+    {% csrf_token %}
+    <div class="training_progress__stat">
+        <div class="training_progress__stat__figure">{{total_tries}}<div class="training_progress__stat__label">completed</div></div>
+    </div>
+    <div class="training_progress__stat">
+
+        <div class="training_progress__stat__figure">{% if success_ratio %}{{success_ratio}}%{% else %}&mdash;{% endif %}<div class="training_progress__stat__label">success</div></div>
+    </div>
+    <div class="training_progress__stat">
+
+        <div class="training_progress__stat__figure">{{success_coverage}}%<div class="training_progress__stat__label">coverage</div></div>
+    </div>
+    <div class="training_progress__button">
+        <input class="button button--contained" type="submit" name="start_training" value="Train">
+    </div>
+</form>
+
+{% if recent_trainings %}
+<h3>Recent Trainings</h3>
+<div class="exercise_list">
+    {% for training in recent_trainings %}
+    <div class="exercise_thumbnail">
+        <a href="{% url 'openy:exercise' eid=training.exercise.id %}">
+            <div class="board" disabled fen="{{training.exercise.cover_position}}"></div>
+            <span class="exercise_thumbnail__title">{{training.exercise.title}}</span>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<h2>Custom Exercises</h2>
+
+{% if custom_exercises %}
+<div class="exercise_list">
+    {% for exercise in custom_exercises %}
+    <div class="exercise_thumbnail">
+        <a href="{% url 'openy:exercise' eid=exercise.id %}">
+            <div class="board" disabled fen="{{exercise.cover_position}}"></div>
+            <span class="exercise_thumbnail__title">{{exercise.title}}</span>
+        </a>
+        <a class="exercise_thumbnail__delete" href="{% url 'openy:exercise_delete' eid=exercise.id %}">&times;</a>
+    </div>
+    {% endfor %}
+</div>
+
+<br>
+{% endif %}
+
 <form class="form_train" action="" method="POST">
     <div>
         <p>
@@ -29,28 +82,11 @@
         {% csrf_token %}
         <input id="inputFen" type="hidden" name="fen" value="">
         <p>
-            <input class="button button--contained" type="submit" value="Start">
+            <input class="button button--contained" type="submit" name="start_custom" value="Create">
         </p>
     </div>
     <div id="formBoard" class="board"></div>
 </form>
-
-<h2>Recent Exercises</h2>
-
-{% if remaining_exercises %}
-<div class="unfinished_exercise_list">
-    {% for exercise in remaining_exercises %}
-    <div class="unfinished_exercise">
-        <a href="{% url 'openy:exercise' eid=exercise.id %}">
-            <div class="board" disabled fen="{{exercise.cover_position}}"></div>
-        </a>
-        <a class="unfinished_exercise__done" href="{% url 'openy:exercise_done' eid=exercise.id %}">&times;</a>
-    </div>
-    {% endfor %}
-</div>
-{% else %}
-<p>Nothing to show here!</p>
-{% endif %}
 
 <script type="text/javascript" src="{% static 'openy/js/board.js' %}"></script>
 <script type="text/javascript">
@@ -58,7 +94,7 @@
     initBoard(document.querySelector("#formBoard"), STARTING_FEN, (fen) => {
         document.getElementById("inputFen").value = fen;
     });
-    document.querySelectorAll(".unfinished_exercise .board").forEach((item, i) => {
+    document.querySelectorAll(".exercise_list .board").forEach((item, i) => {
         initBoard(item, item.getAttribute("fen"), null);
     });
 </script>
