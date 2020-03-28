@@ -3,6 +3,16 @@
     flex-direction: row;
 }
 
+.form_train input[type="text"] {
+    width: 100%;
+    border: none;
+    padding: 8px;
+    box-sizing: border-box;
+    border-radius: 4px;
+    background: #202020;
+    color: white;
+}
+
 .form_train>div:nth-child(1) {
     display: flex;
     flex-direction: column;
@@ -13,7 +23,11 @@
 }
 
 .form_train>div:nth-child(1)>* {
-    margin: auto;
+    margin: 0 auto 16px auto;
+}
+
+.form_train>div:nth-child(1)>*:last-child {
+    margin: 0 auto 0 auto;
 }
 
 .form_train>div:nth-child(2) {
@@ -134,6 +148,15 @@
     display: flex;
     justify-content: center;
     flex-direction: column;
+}
+
+.training_progress__button--large {
+    transform: scale(1.1);
+    transition: .2s ease;
+}
+
+.training_progress__button--large:hover {
+    transform: scale(1.2);
 }
 
 .training_progress__button .button {

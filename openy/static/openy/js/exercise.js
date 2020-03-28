@@ -69,8 +69,14 @@ function initExercise(wrapper, boardStatus, startingPosition, moves, firstMove) 
     exercise.receivedUrl = null;
 
     let movesSplit = moves.split(",");
+    exercise.nothingToAsk = true;
     for (let i = 0; i < movesSplit.length; i++) {
         exercise.moves.push(parseMove(movesSplit[i]));
+        exercise.nothingToAsk = exercise.nothingToAsk && !exercise.moves[i].ask;
+    }
+
+    if (exercise.nothingToAsk) {
+        console.log("This exercise has nothing to ask...");
     }
 
     exercise.start = function() {
@@ -98,16 +104,18 @@ function initExercise(wrapper, boardStatus, startingPosition, moves, firstMove) 
         this.boardStatus.disabled = true;
         let request = new XMLHttpRequest();
         let self = this;
-        let url = window.location.href + (this.status.finishStatus == EXERCISE_SUCCESS ? "/success" : "/failure?progress=" + this.progress);
-        request.open("GET", url, true);
-        request.onload = function() {
-            self.receivedUrl = request.responseURL;
-            self.didReceiveUrl = true;
-            if (self.clickedOnPopup) {
-                window.location.href = self.receivedUrl;
+        if (this.status.finishStatus != null) {
+            let url = window.location.href + (this.status.finishStatus == EXERCISE_SUCCESS ? "/success" : "/failure?progress=" + this.progress);
+            request.open("GET", url, true);
+            request.onload = function() {
+                self.receivedUrl = request.responseURL;
+                self.didReceiveUrl = true;
+                if (self.clickedOnPopup) {
+                    window.location.href = self.receivedUrl;
+                }
             }
-        }
-        request.send(null);
+            request.send(null);
+        } 
     }
 
     exercise.fail = function() {
@@ -137,7 +145,9 @@ function initExercise(wrapper, boardStatus, startingPosition, moves, firstMove) 
             this.progress++;
         }
         this.wrapper.querySelector(".exercise__sidebar__line").textContent = this.boardStatus.history.line();
-        if (!this.moves[this.progress].ask) {
+        if (this.progress == this.moves.length) { // Finish by a non asked move
+            this.stop();
+        } else if (!this.moves[this.progress].ask) {
             this.boardStatus.pushUciMove(this.moves[this.progress].move);
         }
     }

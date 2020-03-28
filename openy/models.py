@@ -29,7 +29,7 @@ class Node(models.Model):
     slug = models.SlugField(max_length=500, unique=True)
 
     def __str__(self):
-        return self.line
+        return "%s (%s)" % (self.uid, self.short_label())
 
     def __lt__(self, other):
         return evaluation_to_float(self.evaluation) < evaluation_to_float(other.evaluation)
@@ -49,6 +49,14 @@ class Node(models.Model):
             return 2 * fullmove
         return 2 * fullmove + 1
 
+    def breadth(self):
+        if self.is_leaf():
+            return 1.
+        return sum(child.breadth() for child in self.children())
+
+    def short_label(self):
+        return self.label.replace(". ...", "...")
+
     def svg(self):
         return chess.svg.board(board=self.board())
 
@@ -63,7 +71,7 @@ class Node(models.Model):
 
     def is_pre_leaf(self):
         children = self.children()
-        return len(children) == 1 and children[0].is_leaf()
+        return len(children) > 0 and all(child.is_leaf() for child in children)
 
     def move_san(self):
         return self.label.split(" ")[-1]
@@ -115,29 +123,43 @@ class Node(models.Model):
             return reverse("openy:explore_root")
         return reverse("openy:explore", kwargs={"slug": self.slug})
 
+    def href_short(self):
+        if self.slug == "":
+            return reverse("openy:explore_root")
+        return reverse("openy:explore_node", kwargs={"uid": self.uid})
+
     def tree(self, pred=None, succ=None):
-        if pred is not None:
-            pred = int(pred)
-        if succ is not None:
-            succ = int(succ)
         if pred is not None and pred > 0 and self.parent is not None:
             if succ is None:
-                return self.parent.tree(pred - 1)
+                return self.parent.tree(pred - 1, None)
             return self.parent.tree(pred - 1, succ + 1)
         result = dict()
-        result[self.uid] = list()
+        result[self] = list()
         for child in sorted(self.children()):
-            result[self.uid].append(child.uid)
+            result[self].append(child)
             child_tree = None
             if succ is None:
-                _, child_tree = child.tree()
+                _, child_tree = child.tree(None, None)
             else:
                 if succ > 0:
-                    _, child_tree = child.tree(succ=succ - 1)
+                    _, child_tree = child.tree(None, succ - 1)
             if child_tree is not None:
                 for key, value in child_tree.items():
                     result[key] = value
-        return self.uid, result
+        return self, result
+
+    def nth_best_move(self, pov):
+        if self.parent is None:
+            return 0
+        return sorted(self.parent.children(), reverse=pov).index(self)
+
+    def is_best_move(self, pov):
+        return self.nth_best_move(pov) == 0
+
+    def is_good_position(self, pov, threshold=0.):
+        if pov == chess.WHITE:
+            return evaluation_to_float(self.evaluation) >= threshold
+        return evaluation_to_float(self.evaluation) <= -threshold
 
 
 class Exercise(models.Model):
@@ -156,19 +178,32 @@ def get_days_delta(start, end):
     return time_delta.days + float(time_delta.seconds) / (24. * 3600.)
 
 
+def elo_winning_probabiliy(gap, spreading):
+    return 1 / (1 + 10 ** (-gap / spreading))
+
+
+def elo_update(gap, outcome, volatility, spreading):
+    return volatility * (float(outcome) - elo_winning_probabiliy(gap, spreading))
+
+
 class PositionTraining(models.Model):
 
     exercise = models.OneToOneField(Exercise, on_delete=models.CASCADE, primary_key=True)
-    node = models.OneToOneField(Node, on_delete=models.CASCADE)
-    depth = models.PositiveIntegerField()
-    partial = models.BooleanField()
+    node_leaf = models.ForeignKey(Node, on_delete=models.CASCADE, related_name="leaf")
+    node_root = models.ForeignKey(Node, on_delete=models.CASCADE, related_name="root")
     successes = models.PositiveIntegerField(default=0)
     failures = models.PositiveIntegerField(default=0)
     tries = models.PositiveIntegerField(default=0)
     last_try = models.DateTimeField(null=True, blank=True)
     date_creation = models.DateTimeField(auto_now=False, auto_now_add=True)
+    elo = models.FloatField(default=1000.)
 
     def add_try(self, outcome):
+        profile = TrainingProfile.load()
+        elo_gap = profile.elo - self.elo
+        profile.elo += elo_update(elo_gap, outcome, profile.elo_volatility, profile.elo_spreading)
+        self.elo += elo_update(-elo_gap, not outcome, profile.elo_volatility, profile.elo_spreading)
+        profile.save()
         self.tries += 1
         if outcome:
             self.successes += 1
@@ -184,9 +219,9 @@ class PositionTraining(models.Model):
         self.add_try(False)
 
     def get_failure_ratio(self):
-        if self.tries > 0:
-            return self.failures / self.tries
-        return 0
+        if self.tries == 0:
+            return 1.
+        return .5 * (1 +(self.failures - self.successes) / (self.tries + 1))
 
     def get_inactivity_ratio(self):
         now = timezone.now()
@@ -197,7 +232,7 @@ class PositionTraining(models.Model):
         return last_try_delta / creation_delta
 
     def get_ease_ratio(self):
-        return 1. / (self.depth + 1.)
+        return (10. - min(self.node_root.depth() // 2 - 1, 10)) / 10.
 
     def get_training_weight(self, failure_coef=1., inactivity_coef=1., ease_coef=0.):
         return (
@@ -205,3 +240,32 @@ class PositionTraining(models.Model):
             + inactivity_coef * self.get_inactivity_ratio()
             + ease_coef * self.get_ease_ratio()
         ) / (failure_coef + inactivity_coef + ease_coef)
+
+
+class SingletonModel(models.Model):
+
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(SingletonModel, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def load(cls):
+        """Return singleton and creates it if needed"""
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+
+class TrainingProfile(SingletonModel):
+
+    elo = models.FloatField(default=1000.)
+    failure_coef = models.FloatField(default=1.)
+    inactivity_coef = models.FloatField(default=1.)
+    ease_coef = models.FloatField(default=1.)
+    elo_spreading = models.FloatField(default=400)
+    elo_volatility = models.FloatField(default=10)

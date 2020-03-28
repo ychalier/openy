@@ -32,6 +32,6 @@
 </div>
 <script type="text/javascript" src="{% static 'openy/js/repertoire.js' %}"></script>
 <script type="text/javascript">
-    let rep = initRepertoire(document.querySelector("#repertoire1"), "{% url 'openy:draw' %}?lines=1");
+    let rep = initRepertoire(document.querySelector("#repertoire1"), "{% url 'openy:draw' %}");
 </script>
 {% endblock %}

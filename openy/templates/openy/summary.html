@@ -1,0 +1,60 @@
+{% extends 'openy/layout.html' %}
+{% load static %}
+
+{% block title %}Summary • {{block.super}}{% endblock title %}
+
+{% block stylesheets %}
+{{ block.super }}
+<style media="screen">
+    table {
+        width: 100%;
+    }
+    td {
+        text-align: center;
+    }
+    th {
+        word-break: break-all;
+    }
+    td a, th a {
+        color: white;
+        text-decoration: none;
+    }
+</style>
+{% endblock %}
+
+{% block section %}
+
+<h1>Summary</h1>
+
+<p>Click on a column's name use it as a sorting key.</p>
+
+<table>
+    <tr>
+        <th><a href="?order_by=exercise_id&desc=0">Exercise</a></th>
+        <th><a href="?order_by=elo">ELO</a></th>
+        <th><a href="?order_by=tries">Tries</a></th>
+        <th><a href="?order_by=successes">Won</a></th>
+        <th><a href="?order_by=failures">Lost</a></th>
+        <th><a href="?order_by=failure_ratio">Failure<br>Ratio</a></th>
+        <th><a href="?order_by=inactivity_ratio">Inactivity<br>Ratio</a></th>
+        <th><a href="?order_by=ease_ratio">Ease<br>Ratio</a></th>
+        <th><a href="?order_by=computed_weight">Training<br>Weight</a></th>
+    </tr>
+{% for pos in positions %}
+<tr>
+    <td><a href="{% url 'openy:exercise' eid=pos.exercise.id %}">{{pos.exercise.id}}. {{pos.exercise.title}}</a></td>
+    <td>{{pos.elo|floatformat:0}}</td>
+    <td>{{pos.tries}}</td>
+    <td>{{pos.successes}}</td>
+    <td>{{pos.failures}}</td>
+    <td>{{pos.get_failure_ratio|floatformat:2}}</td>
+    <td>{{pos.get_inactivity_ratio|floatformat:2}}</td>
+    <td>{{pos.get_ease_ratio|floatformat:2}}</td>
+    <td>{{pos.computed_weight|floatformat:2}}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% endblock %}

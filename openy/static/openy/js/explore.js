@@ -88,6 +88,6 @@ function setTrainShortcut(trainShortcut, boardStatus) {
         request.onload = function() {
             window.location.href = request.responseURL;
         }
-        request.send("csrfmiddlewaretoken=" + csrfToken + "&fen=" + fen.split(" ")[0] + (fen.split(" ")[1] == "w" ? "" : "&turn=\"on\""));
+        request.send("csrfmiddlewaretoken=" + csrfToken + "&fen=" + fen.split(" ")[0]);
     });
 }

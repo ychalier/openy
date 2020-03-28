@@ -15,8 +15,9 @@
 {% block section %}
     <h1>Exploring the Database</h1>
     <p class="line_wrapper">
-        <span class="line">{{node.line}}</span>
-        <img class="line_external" id="train_shortcut" href="{% url 'openy:train' %}" csrf="{{csrf_token}}" title="Train" src="{% static 'openy/svg/external.svg' %}" alt="Train" />
+        <span class="line line--noflex">{{node.line}}</span>
+        <img class="line_external" id="train_shortcut" href="{% url 'openy:train_position' %}" csrf="{{csrf_token}}" title="Train this position" src="{% static 'openy/svg/external.svg' %}" alt="Train" />
+        <img class="line_external" id="img_clipboard" title="Copy FEN" src="{% static 'openy/svg/clipboard.svg' %}" alt="Copy FEN" />
     </p>
     <div class="explore_table">
         <div class="board_bar">
@@ -24,15 +25,17 @@
             <div id="board1" class="board"></div>
         </div>
         <div class="history">
+            {% if node.parent %}
             <table>
                 {% for ancestor in node.ancestors %}
                 <tr>
-                    <td><a href="{{ancestor.href}}">{{ancestor.label}}</a></td>
+                    <td class="history_anchor" history_anchor="{{ forloop.counter0 }}">{{ancestor.short_label}}</td>
                     <td style="color: {{ancestor.color}}">{{ancestor.evaluation}}</td>
                     <td>{% if ancestor.comment %}{{ancestor.comment | capfirst}}{% else %}&ndash;{% endif %}</td>
                 </tr>
                 {% endfor %}
             </table>
+            {% endif %}
         </div>
     </div>
 
@@ -50,9 +53,28 @@
     <script type="text/javascript" src="{% static 'openy/js/evaluation.js' %}"></script>
     <script type="text/javascript" src="{% static 'openy/js/explore.js' %}"></script>
     <script type="text/javascript">
-        let boardStatus = initBoard(document.querySelector("#board1"), "{{node.fen}}", createBoardCallback("{{node.uid}}"));
-        initRepertoire(document.querySelector("#repertoire1"), "{% url 'openy:draw' %}?center={{node.uid}}&pred=2&succ=1");
+        let boardStatus = initBoard(document.querySelector("#board1"), STARTING_FEN, createBoardCallback("{{node.uid}}"));
+        {% if node.label %}
+        {% for ancestor in node.ancestors reversed %}
+        boardStatus.pushUciMove("{{ancestor.move_uci}}");
+        {% endfor %}
+        {% endif %}
+        initRepertoire(document.querySelector("#repertoire1"), "{% url 'openy:draw' %}?center={{node.uid}}&pred=2&succ=2");
         initEvaluationBar(document.querySelector("#bar1"), "{{node.evaluation}}");
         setTrainShortcut(document.getElementById("train_shortcut"), boardStatus);
+        let historyLength = document.querySelectorAll(".history_anchor").length;
+        document.querySelectorAll(".history_anchor").forEach((item, i) => {
+            item.addEventListener("click", (event) => {
+                boardStatus.goToHistory(historyLength - parseInt(event.target.getAttribute("history_anchor")));
+            });
+        });
+        document.getElementById("img_clipboard").addEventListener("click", (event) => {
+            let dummyInput = document.createElement("input");
+            document.body.appendChild(dummyInput);
+            dummyInput.value = boardStatus.getFen();
+            dummyInput.select();
+            document.execCommand("copy", false);
+            dummyInput.remove();
+        });
     </script>
 {% endblock %}

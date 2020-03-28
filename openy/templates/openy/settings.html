@@ -1,16 +1,67 @@
 {% extends 'openy/layout.html' %}
 {% load static %}
 
+{% block title %}Settings • {{block.super}}{% endblock title %}
+
+{% block stylesheets %}
+{{block.super}}
+<link rel="stylesheet" href="{% static 'openy/css/forms.css' %}" />
+{% endblock %}
+
 {% block section %}
 <h1>Settings</h1>
 
-<div>
-    <form method="post" action="{% url 'openy:upload' %}" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="file">
-        <button type="submit">Upload</button>
-    </form>
 
+<div>
+    <p>
+        Upload a JSON repertoire
+    </p>
+    <form class="form--inline" method="post" action="{% url 'openy:upload' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label class="button button--text" for="inputFile">Browse...</label>
+        <div class="input--file">
+            <input id="inputFile" type="file" name="file" accept=".json" />
+        </div>
+        <span id="inputFileFilename" style="line-height: 37px"></span>
+        <input class="button button--contained" type="submit" value="Upload"/>
+    </form>
+    <p>
+        Check the <a href="{% url 'openy:home' %}">homepage</a> for detailed
+        instructions on how to get this file.
+    </p>
 </div>
+
+<br>
+
+<form class="form--full" action="" method="post">
+    {% csrf_token %}
+    <div class="input input--outlined">
+        <label for="inputFailureCoef">Failure Ratio Coefficient</label>
+        <input id="inputFailureCoef" type="number" step="0.01" name="failure_coef" value="{{profile.failure_coef}}" />
+    </div>
+    <div class="input input--outlined">
+        <label for="inputInactivityCoef">Inactivity Ratio Coefficient</label>
+        <input id="inputInactivityCoef" type="number" step="0.01" name="inactivity_coef" value="{{profile.inactivity_coef}}" />
+    </div>
+    <div class="input input--outlined">
+        <label for="inputEaseCoef">Ease Ratio Coefficient</label>
+        <input id="inputEaseCoef" type="number" step="0.01" name="ease_coef" value="{{profile.ease_coef}}" />
+    </div>
+    <div class="input input--outlined">
+        <label for="inputEloVolatility">ELO Volatility</label>
+        <input id="inputEloVolatility" type="number" step="0.01" name="elo_volatility" value="{{profile.elo_volatility}}" />
+    </div>
+    <div class="input input--outlined">
+        <label for="inputEloSpreading">ELO Spreading</label>
+        <input id="inputEloSpreading" type="number" step="0.01" name="elo_spreading" value="{{profile.elo_spreading}}" />
+    </div>
+    <input class="button button--contained" type="submit" value="Save" />
+</form>
+
+<script type="text/javascript">
+    document.getElementById("inputFile").addEventListener("change", (event) => {
+        document.getElementById("inputFileFilename").textContent = event.target.value.split("\\").pop();
+    });
+</script>
 
 {% endblock %}

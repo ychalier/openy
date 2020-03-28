@@ -316,7 +316,7 @@ function initPosition() {
     position.parseFen = function(fen) {
         this.pieces = initMatrix();
         if (fen) {
-            let splitFen = fen.split(" ");
+            let splitFen = fen.trim().split(" ");
             let split = splitFen[0].split("/");
             for (let i = 0; i < split.length; i++) {
                 let rank = 8 - i;
@@ -333,17 +333,27 @@ function initPosition() {
                     }
                 }
             }
-            this.turn = splitFen[1];
-            for (castlingKind in this.castling) {
-                this.castling[castlingKind] = splitFen[2].includes(castlingKind);
+            if (splitFen.length > 1) {
+                this.turn = splitFen[1];
             }
-            if (splitFen[3] == "-") {
-                this.enPassant = null;
-            } else {
-                this.enPassant = uciToPos(splitFen[3]);
+            if (splitFen.length > 2) {
+                for (castlingKind in this.castling) {
+                    this.castling[castlingKind] = splitFen[2].includes(castlingKind);
+                }
             }
-            this.halfMoves = parseInt(splitFen[4]);
-            this.fullMoves = parseInt(splitFen[5]);
+            if (splitFen.length > 3) {
+                if (splitFen[3] == "-") {
+                    this.enPassant = null;
+                } else {
+                    this.enPassant = uciToPos(splitFen[3]);
+                }
+            }
+            if (splitFen.length > 4) {
+                this.halfMoves = parseInt(splitFen[4]);
+            }
+            if (splitFen.length > 5) {
+                this.fullMoves = parseInt(splitFen[5]);
+            }
         }
     }
 
@@ -878,9 +888,12 @@ function initBoardStatus() {
         }
     }
 
-    boardStatus.undo = function() {
-        if (this.history.index > 0) {
-            this.history.index--;
+    boardStatus.goToHistory = function(index) {
+        if (index < 0) {
+            index = this.history.stack.length - 1 - index;
+        }
+        if (index >= 0 && index < this.history.stack.length) {
+            this.history.index = index;
             this.parseFen(this.history.get().fen);
             this.position.updateResult();
             this.highlight.lastMoveStart = null;
@@ -894,20 +907,12 @@ function initBoardStatus() {
         }
     }
 
+    boardStatus.undo = function() {
+        this.goToHistory(this.history.index - 1);
+    }
+
     boardStatus.redo = function() {
-        if (this.history.index < this.history.stack.length - 1) {
-            this.history.index++;
-            this.parseFen(this.history.get().fen);
-            this.position.updateResult();
-            this.highlight.lastMoveStart = null;
-            this.highlight.lastMoveEnd = null;
-            if (this.history.get().lastMoveUci) {
-                let lastMoveUci = this.history.get().lastMoveUci;
-                this.highlight.lastMoveStart = uciToPos(lastMoveUci.slice(0, 2));
-                this.highlight.lastMoveEnd = uciToPos(lastMoveUci.slice(2));
-            }
-            this.update();
-        }
+        this.goToHistory(this.history.index + 1);
     }
 
     boardStatus.setEventListeners = function() {

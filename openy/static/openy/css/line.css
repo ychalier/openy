@@ -1,13 +1,21 @@
 .line_wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
+    line-height: 21px;
 }
 
 .line {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-start;
+}
+
+.line--noflex {
+    display: inline;
+    width: auto;
+    word-wrap: break-word;
+}
+
+.line--noflex > * {
+    display: inline-block;
 }
 
 .move_number {
@@ -29,6 +37,7 @@
     height: 21px;
     cursor: pointer;
     transition: .5s ease;
+    margin-bottom: -4px;
 }
 
 .line_external:hover {

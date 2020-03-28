@@ -1,3 +1,13 @@
+.form--inline {
+    display: flex;
+    flex-direction: row;
+    align-items: space-around;
+}
+
+.form--inline > * {
+    margin-right: 16px;
+}
+
 .form--full {
     display: flex;
     flex-direction: column;
@@ -6,6 +16,8 @@
 
 .form--full .input {
     width: 100%;
+    margin-top: 16px;
+    margin-bottom: 16px;
 }
 
 .form--full .button {
@@ -24,13 +36,13 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    border: 1px solid rgb(238, 238, 210);
+    border: 1px solid rgb(118, 150, 86);
     border-radius: 4px;
     transition: .2s ease;
 }
 
 .input label {
-    color: rgb(238, 238, 210);
+    color: rgb(118, 150, 86);
     padding: 8px;
     font-size: 14px;
     transition: .2s ease;
@@ -55,11 +67,11 @@
 }
 
 .input:hover, .input:focus, .input:hover, .input:active {
-    border-color: rgb(118, 150, 86);
+    border-color: rgb(238, 238, 210);
 }
 
 .input:hover label, .input:focus label, .input:hover label, .input:active label {
-    color: rgb(118, 150, 86);
+    color: rgb(238, 238, 210);
 }
 
 .button {
@@ -73,6 +85,7 @@
     transition: .5s ease;
     /*letter-spacing: 2px;*/
     font-weight: 400;
+    text-align: center;
 }
 
 .button--text {
@@ -151,4 +164,17 @@
 
 .input--toggle input:checked ~ label {
     border-color: rgb(118, 150, 86);
+}
+
+.input--file {
+    margin: 0;
+}
+
+.input--file input[type="file"] {
+    width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
 }

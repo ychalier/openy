@@ -28,7 +28,7 @@ function initRepertoireStatus() {
     repertoireStatus.currentViewBox = {};
 
     repertoireStatus.getScale = function(targetRadius) {
-        let radius = parseFloat(this.svg.querySelector(".node > circle").getAttribute("r"));
+        let radius = parseFloat(this.svg.querySelector(".node circle").getAttribute("r"));
         let scaleWidth = this.camera.width * targetRadius / (this.div.offsetWidth * radius);
         let scaleHeight = this.camera.height * targetRadius / (this.div.offsetHeight * radius);
         return (scaleWidth < scaleHeight ? scaleWidth : scaleHeight);
@@ -118,7 +118,7 @@ function initRepertoireStatus() {
             });
 
             let targetUid = this.div.getAttribute("target");
-            let targetNode = this.svg.querySelector(".node[uid=\"" + targetUid + "\"] > circle");
+            let targetNode = this.svg.querySelector(".node[uid=\"" + targetUid + "\"] circle");
             if (targetNode) {
                 this.camera.centerX = parseFloat(targetNode.getAttribute("cx"));
                 this.camera.centerY = parseFloat(targetNode.getAttribute("cy"));
@@ -144,7 +144,7 @@ function initRepertoire(div, url) {
     if (centerButton) {
         centerButton.addEventListener("click", (event) => {
             let targetUid = div.getAttribute("target");
-            let targetNode = repertoireStatus.svg.querySelector(".node[uid=\"" + targetUid + "\"] > circle");
+            let targetNode = repertoireStatus.svg.querySelector(".node[uid=\"" + targetUid + "\"] circle");
             if (targetNode) {
                 repertoireStatus.camera.centerX = parseFloat(targetNode.getAttribute("cx"));
                 repertoireStatus.camera.centerY = parseFloat(targetNode.getAttribute("cy"));

@@ -17,7 +17,7 @@
     cursor: pointer;
 }
 
-.node:hover {
+.node:hover a {
     text-decoration: none;
 }
 

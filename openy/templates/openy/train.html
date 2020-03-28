@@ -14,22 +14,22 @@
 <h1>Train Openings</h1>
 
 <form class="training_progress" action="" method="POST">
-    <div class="training_progress__title">
-        Training Progress
-    </div>
     {% csrf_token %}
+
+    <div class="training_progress__stat">
+        <div class="training_progress__stat__figure">{{elo|floatformat:"0"}}<div class="training_progress__stat__label">ELO</div></div>
+    </div>
     <div class="training_progress__stat">
         <div class="training_progress__stat__figure">{{total_tries}}<div class="training_progress__stat__label">completed</div></div>
     </div>
-    <div class="training_progress__stat">
 
+    <div class="training_progress__stat">
         <div class="training_progress__stat__figure">{% if success_ratio %}{{success_ratio}}%{% else %}&mdash;{% endif %}<div class="training_progress__stat__label">success</div></div>
     </div>
     <div class="training_progress__stat">
-
-        <div class="training_progress__stat__figure">{{success_coverage}}%<div class="training_progress__stat__label">coverage</div></div>
+        <div class="training_progress__stat__figure">{% if success_coverage %}{{success_coverage}}%{% else %}&mdash;{% endif %}<div class="training_progress__stat__label">coverage</div></div>
     </div>
-    <div class="training_progress__button">
+    <div class="training_progress__button training_progress__button--large">
         <input class="button button--contained" type="submit" name="start_training" value="Train">
     </div>
 </form>
@@ -69,8 +69,9 @@
 <form class="form_train" action="" method="POST">
     <div>
         <p>
-            Select the starting position with the board on the right.
+            Perform the sequence of moves to memorize on the board to the right:
         </p>
+        <input id="inputLine" type="text" name="line" placeholder="Move sequence in standard algebraic notation" />
         <div class="input input--toggle">
             <input id="turn" type="checkbox" name="turn" />
             <span>Play as White</span>
@@ -80,7 +81,6 @@
             <span>Black</span>
         </div>
         {% csrf_token %}
-        <input id="inputFen" type="hidden" name="fen" value="">
         <p>
             <input class="button button--contained" type="submit" name="start_custom" value="Create">
         </p>
@@ -88,11 +88,14 @@
     <div id="formBoard" class="board"></div>
 </form>
 
+<p>
+    Monitor exercises with the training <a title="Summary" href="{% url 'openy:summary' %}">Summary</a> panel.
+</p>
+
 <script type="text/javascript" src="{% static 'openy/js/board.js' %}"></script>
 <script type="text/javascript">
-    document.getElementById("inputFen").value = STARTING_FEN;
-    initBoard(document.querySelector("#formBoard"), STARTING_FEN, (fen) => {
-        document.getElementById("inputFen").value = fen;
+    let boardStatus = initBoard(document.querySelector("#formBoard"), STARTING_FEN, (fen) => {
+        document.getElementById("inputLine").value = boardStatus.history.line();
     });
     document.querySelectorAll(".exercise_list .board").forEach((item, i) => {
         initBoard(item, item.getAttribute("fen"), null);
