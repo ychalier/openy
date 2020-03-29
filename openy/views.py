@@ -22,6 +22,10 @@ def home(request):
     return render(request, "openy/home.html", {})
 
 
+def js_utils(request):
+    return render(request, "openy/utils.js", content_type="text/javascript")
+
+
 @login_required
 def settings(request):
     """Control the application behavior"""

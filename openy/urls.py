@@ -22,4 +22,5 @@ urlpatterns = [
     path("graph", views.graph, name="graph"),
     path("summary", views.summary, name="summary"),
     path("notes", views.notes, name="notes"),
+    path("utils.js", views.js_utils, name="js_utils"),
 ]

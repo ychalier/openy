@@ -17,7 +17,6 @@
     <p class="line_wrapper">
         <span class="line line--noflex">{{node.line}}</span>
         <img class="line_external" id="train_shortcut" href="{% url 'openy:train_position' %}" csrf="{{csrf_token}}" title="Train this position" src="{% static 'openy/svg/external.svg' %}" alt="Train" />
-        <img class="line_external" id="img_clipboard" title="Copy FEN" src="{% static 'openy/svg/clipboard.svg' %}" alt="Copy FEN" />
     </p>
     <div class="explore_table">
         <div class="board_bar">
@@ -67,14 +66,6 @@
             item.addEventListener("click", (event) => {
                 boardStatus.goToHistory(historyLength - parseInt(event.target.getAttribute("history_anchor")));
             });
-        });
-        document.getElementById("img_clipboard").addEventListener("click", (event) => {
-            let dummyInput = document.createElement("input");
-            document.body.appendChild(dummyInput);
-            dummyInput.value = boardStatus.getFen();
-            dummyInput.select();
-            document.execCommand("copy", false);
-            dummyInput.remove();
         });
     </script>
 {% endblock %}

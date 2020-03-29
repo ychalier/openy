@@ -679,6 +679,7 @@ function initBoardStatus() {
     boardStatus.matrix = initMatrix();
     boardStatus.disabled = false;
     boardStatus.flipped = false;
+    boardStatus.materialDiv = null;
 
     boardStatus.reverse = function() {
         if (this.flipped) {
@@ -754,6 +755,15 @@ function initBoardStatus() {
 
     boardStatus.callback = null;
 
+    boardStatus.copyFenToClipboard = function() {
+        let dummyInput = document.createElement("input");
+        document.body.appendChild(dummyInput);
+        dummyInput.value = this.getFen();
+        dummyInput.select();
+        document.execCommand("copy", false);
+        dummyInput.remove();
+    }
+
     boardStatus.setBoard = function() {
         this.board.innerHTML = "";
         let boardWrapper = document.createElement("div");
@@ -778,9 +788,50 @@ function initBoardStatus() {
         let resultDiv = document.createElement("div");
         resultDiv.classList.add("board_result");
         this.board.appendChild(resultDiv);
-        let materialDiv = document.createElement("div");
-        materialDiv.classList.add("board_material");
-        this.board.appendChild(materialDiv);
+        if (!this.disabled) {
+            console.log(window.location.pathname);
+            let boardPanel = document.createElement("div");
+            boardPanel.classList.add("board_panel");
+            let boardPanelIcons = document.createElement("div");
+            boardPanelIcons.classList.add("board_panel__icons");
+            let boardPanelFlip = document.createElement("img");
+            boardPanelFlip.classList.add("board_panel__icon");
+            boardPanelFlip.src = STATIC_URL + "/svg/flip.svg";
+            boardPanelFlip.title = "Flip the board";
+            boardPanelFlip.addEventListener("click", (event) => {
+                this.reverse();
+                boardPanel.classList.remove("board_panel--expanded");
+            });
+            let boardPanelCopy = document.createElement("img");
+            boardPanelCopy.classList.add("board_panel__icon");
+            boardPanelCopy.src = STATIC_URL + "/svg/clipboard.svg";
+            boardPanelCopy.title = "Copy board FEN to clipboard";
+            boardPanelCopy.addEventListener("click", (event) => {
+                this.copyFenToClipboard();
+                boardPanel.classList.remove("board_panel--expanded");
+            });
+            this.materialDiv = document.createElement("div");
+            this.materialDiv.classList.add("board_panel__material");
+            this.materialDiv.classList.add("board_panel__icon");
+            let boardPanelArrow = document.createElement("img");
+            boardPanelArrow.src = STATIC_URL + "/svg/arrow_top.svg";
+            boardPanelArrow.classList.add("board_panel__arrow");
+            boardPanelArrow.classList.add("board_panel__icon");
+            boardPanelArrow.title = "Toggle board panel";
+            boardPanelArrow.addEventListener("click", (event) => {
+                if (boardPanel.classList.contains("board_panel--expanded")) {
+                    boardPanel.classList.remove("board_panel--expanded");
+                } else {
+                    boardPanel.classList.add("board_panel--expanded");
+                }
+            });
+            boardPanel.appendChild(boardPanelArrow);
+            boardPanelIcons.appendChild(boardPanelFlip);
+            boardPanelIcons.appendChild(boardPanelCopy);
+            boardPanelIcons.appendChild(this.materialDiv);
+            boardPanel.appendChild(boardPanelIcons);
+            this.board.appendChild(boardPanel);
+        }
     }
 
     boardStatus.parseFen = function(fen) {
@@ -837,11 +888,13 @@ function initBoardStatus() {
         if (this.highlight.lastMoveEnd) {
             this.matrix.get(this.highlight.lastMoveEnd.rank, this.highlight.lastMoveEnd.file).classList.add("square--highlight");
         }
-        let materialCount = this.position.countMaterial();
-        if (materialCount > 0) {
-            this.board.querySelector(".board_material").textContent = "+" + materialCount;
-        } else {
-            this.board.querySelector(".board_material").textContent = materialCount;
+        if (this.materialDiv) {
+            let materialCount = this.position.countMaterial();
+            if (materialCount > 0) {
+                this.board.querySelector(".board_panel__material").textContent = "+" + materialCount;
+            } else {
+                this.board.querySelector(".board_panel__material").textContent = materialCount;
+            }
         }
     }
 
@@ -1040,9 +1093,9 @@ function initBoard(board, fen, callback) {
     resizeObserver.observe(board);
     boardStatus.board = board;
     boardStatus.callback = callback;
+    boardStatus.disabled = board.hasAttribute("disabled");
     boardStatus.setBoard();
     boardStatus.pushFen(fen);
     boardStatus.setEventListeners();
-    boardStatus.disabled = board.hasAttribute("disabled");
     return boardStatus;
 }

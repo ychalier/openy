@@ -135,3 +135,66 @@
 .board--reverse .rank {
     flex-direction: row-reverse;
 }
+
+.board_panel {
+    position: absolute;
+    width: 100%;
+    height: 32px;
+    bottom: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    transition: .2s ease;
+    pointer-events: none;
+}
+
+.board_panel__icons {
+    z-index: -1;
+    opacity: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    transition: .2s ease;
+}
+
+.board_panel__icon {
+    pointer-events: auto;
+    height: 16px;
+    padding: 4px;
+    margin: 4px;
+    transition: .2s ease;
+    background: rgba(32, 32, 32, .2);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 16px;
+    text-align: center;
+}
+
+.board_panel__material {
+    width: auto;
+    border-radius: 4px;
+    cursor: default;
+}
+
+.board_panel__icon:hover {
+    background: rgba(32, 32, 32, .8);
+}
+
+.board_panel--expanded .board_panel__icons {
+    z-index: 1;
+    opacity: 1;
+}
+
+.board_panel--expanded .board_panel__icon {
+    background: rgba(32, 32, 32, .5);
+}
+
+.board_panel--expanded .board_panel__icon:hover {
+    background: rgba(32, 32, 32, 1);
+}
+
+.board_panel--expanded .board_panel__arrow {
+    transform: rotate(180deg);
+}
