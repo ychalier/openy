@@ -74,3 +74,11 @@ a:hover {
 code, pre {
     font-family: Consolas, monospace;
 }
+
+pre {
+    background: #202020;
+    overflow-x: auto;
+    padding: 8px;
+    word-break: normal;
+    border-radius: 4px;
+}
